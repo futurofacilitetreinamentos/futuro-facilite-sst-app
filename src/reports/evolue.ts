@@ -1,0 +1,200 @@
+// Port of v8-src/js/evolue.js (EvolueDocs): date formatters, risk-group letter,
+// GHE grouping and the boilerplate texts / sumários of each document.
+// TE/PD/GR helpers live in risk.ts (re-exported here for convenience).
+import type { LegacyFuncao, LegacyGhe, LegacyProject, LegacyRisco } from './types';
+
+export { te, teNome, pd, pdNome, gr, grNome } from './risk';
+
+const MESES = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
+const MESES_MIN = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+/** `2026-07-23` → `JULHO DE 2026`. */
+export function mesAno(d?: string): string {
+  if (!d) return '—';
+  const p = String(d).split('-');
+  if (p.length === 3) return (MESES[Number(p[1]) - 1] || p[1]) + ' DE ' + p[0];
+  return d;
+}
+
+/** `2026-07-23` → `Julho de 2026`. */
+export function mesAnoCapa(d?: string): string {
+  const p = String(d || '').split('-');
+  if (p.length === 3) {
+    const m = MESES_MIN[Number(p[1]) - 1] || p[1];
+    return m.charAt(0).toUpperCase() + m.slice(1) + ' de ' + p[0];
+  }
+  return d || '—';
+}
+
+/** `2026-07-23` → `23 de julho de 2026`; falls back to `now` when empty/invalid. */
+export function dataExtenso(d?: string, now: Date = new Date()): string {
+  const p = String(d || '').split('-');
+  if (p.length === 3) return Number(p[2]) + ' de ' + MESES_MIN[Number(p[1]) - 1] + ' de ' + p[0];
+  return now.getDate() + ' de ' + MESES_MIN[now.getMonth()] + ' de ' + now.getFullYear();
+}
+
+export type GrupoLetra = 'F' | 'Q' | 'B' | 'E' | 'A' | 'P';
+
+export function grupoLetra(g?: string): GrupoLetra {
+  const t = String(g || '').toLowerCase();
+  if (/qu[ií]m/.test(t)) return 'Q';
+  if (/biol/.test(t)) return 'B';
+  if (/ergo/.test(t)) return 'E';
+  if (/acid/.test(t)) return 'A';
+  if (/psico/.test(t)) return 'P';
+  return 'F';
+}
+
+export interface GheGroup {
+  ghe: LegacyGhe;
+  funcoes: LegacyFuncao[];
+  riscos: LegacyRisco[];
+}
+
+/** GHE grouping (EvolueDocs.groups): explicit GHEs, else one GHE per função, else a single group. */
+export function groups(p: LegacyProject): GheGroup[] {
+  const ghes = p.ghe || [];
+  const funcoes = p.funcoes || [];
+  const riscos = p.riscos || [];
+  if (ghes.length) {
+    return ghes.map((g) => {
+      const fn = funcoes.filter((f) => f.setor === g.setor || String(g.funcoes || '').toLowerCase().includes(String(f.nome || '').toLowerCase()));
+      const rs = riscos.filter((r) => r.ghe === g.nome || fn.some((f) => f.nome === r.funcao));
+      return { ghe: g, funcoes: fn.length ? fn : funcoes.filter((f) => f.setor === g.setor), riscos: rs.length ? rs : riscos.filter((r) => r.ghe === g.nome) };
+    });
+  }
+  if (funcoes.length) {
+    return funcoes.map((f) => ({
+      ghe: { nome: 'GHE ' + f.nome, setor: f.setor || '', funcoes: f.nome, descricao: f.atividades || '' },
+      funcoes: [f],
+      riscos: riscos.filter((r) => r.funcao === f.nome || r.ghe === f.nome),
+    }));
+  }
+  return [{ ghe: { nome: 'Ambientes do condomínio', setor: '', funcoes: '', descricao: p.empresa?.atividadeEmpresa || '' }, funcoes: [], riscos }];
+}
+
+// ---------------------------------------------------------------------------
+// Boilerplate texts (byte-identical to legacy EvolueDocs.PGR / PCMSO / LTCAT / NR1)
+// ---------------------------------------------------------------------------
+
+export const PGR_TEXTS = {
+  "apresentacao": "O presente documento foi desenvolvido em atendimento à Norma Regulamentadora nº 01, do Ministério do Trabalho e Emprego, que estabelece os requisitos necessários para o Gerenciamento de Riscos Ocupacionais (GRO), que deve constituir um Programa de Gerenciamento de Riscos (PGR) por parte de todos os empregadores e instituições que admitam trabalhadores como empregados, aprovado pela Portaria SEPRT n.º 6.730, de 09 de março de 2020.",
+  "sumario": [
+    "1. Introdução",
+    "2. Documento-base",
+    "2.1. Integração com o PCMSO",
+    "3. Identificação da empresa",
+    "4. Estrutura do PGR",
+    "4.1. Planejamento continuado",
+    "4.2. Plano das ações",
+    "4.3. Estratégia e metodologia de ações",
+    "4.4. Registro e divulgação de dados",
+    "5. Desenvolvimento do PGR",
+    "5.1. Identificação dos agentes de riscos ocupacionais",
+    "5.2. Perigos",
+    "6. Avaliação dos riscos e perigos",
+    "6.1. Visita técnica",
+    "6.2. Avaliação qualitativa",
+    "7. Inventário de riscos e perigos (GHE)",
+    "8. Riscos psicossociais (DRPS / NR-1)",
+    "9. Implantação de medidas de controle",
+    "10. Equipamento de proteção individual",
+    "10.1. EPIs existentes",
+    "10.2. EPIs recomendados",
+    "10.3. Certificado de Aprovação — CA",
+    "10.4. Validade do CA",
+    "11. Plano de ação",
+    "12. Considerações finais",
+    "13. Referências",
+    "14. Responsabilidade técnica",
+    "Apêndice A — Ficha de controle de EPI",
+    "Apêndice B — Imagens dos EPIs"
+  ],
+  "intro": "O Gerenciamento de Riscos Ocupacionais (GRO) é o sistema de melhoria contínua dos ambientes de trabalho. O Programa de Gerenciamento de Riscos (PGR) é a ferramenta essencial para prevenção da saúde e proteção da integridade dos trabalhadores: identifica, avalia, monitora e controla perigos e riscos. O PGR deve estar integrado ao PCMSO (NR-7), ao LTCAT e às demais ações de SST do estabelecimento.",
+  "base": "O documento-base apresenta a estratégia e a metodologia de ação, as formas de registro, manutenção e divulgação dos dados, a periodicidade de avaliação e o planejamento das metas. Este programa, suas alterações e complementações devem ficar disponíveis aos trabalhadores interessados ou seus representantes e à Inspeção do Trabalho.",
+  "pcmso": "O PGR constitui as informações do inventário de riscos ocupacionais, devendo estar articulado com as demais NRs, em especial com o Programa de Controle Médico de Saúde Ocupacional (PCMSO) previsto na NR-7.",
+  "estrutura": "O PGR descrito neste documento-base contém: inventário de riscos; planejamento continuado; plano de ações; registro e manutenção de dados. A revisão ocorre no mínimo a cada dois anos ou antes, quando houver mudança relevante de processo, ambiente, controles, acidente, doença relacionada ao trabalho ou requisito legal.",
+  "hierarquia": "A hierarquia de controles observa: (1) eliminação dos fatores de risco; (2) medidas de proteção coletiva; (3) medidas administrativas ou de organização do trabalho; (4) proteção individual (EPI).",
+  "visita": "A visita técnica identifica as situações de risco com a colaboração dos trabalhadores e das chefias. A metodologia de reconhecimento segue a NR-1/NR-9: identificação dos perigos e agentes, funções expostas, fonte geradora, possíveis danos à saúde e medidas de controle existentes e propostas. Os dados da inspeção SST deste condomínio (data, técnico, não conformidades e fotos) alimentam automaticamente esta seção e o plano de ação.",
+  "qualitativa": "A avaliação qualitativa utiliza a matriz de Graduação de Risco (GR = Severidade × Frequência), com Tempo de Exposição Eventual, Intermitente ou Permanente e Potencial de Dano Baixo, Médio, Alto ou Crítico. As ações seguem a graduação: Tolerável, Moderado, Substancial ou Intolerável.",
+  "ghe": "A abordagem de risco é feita por Grupo Homogêneo de Exposição (GHE): trabalhadores com exposições similares, de forma que a avaliação de parte do grupo represente os demais.",
+  "controles": "Devem ser adotadas medidas suficientes para eliminar, minimizar ou controlar os riscos quando a NR exigir, quando a classificação assim determinar, quando houver evidência de agravo à saúde associado ao trabalho, ou quando avaliações quantitativas excederem os limites da NR-15 ou da ACGIH.",
+  "epi": "Em acordo com a NR-6, o empregador deve fornecer EPI adequado ao risco, em perfeito estado; treinar o trabalhador quanto ao uso, guarda e conservação; substituir imediatamente o danificado; e registrar o fornecimento, por ficha, livro ou meio eletrônico. A ficha individual de controle de EPI consta do Apêndice A deste PGR.",
+  "epiExistentes": "Os equipamentos abaixo constam das medidas de controle já identificadas no inventário e/ou na visita técnica. A ausência de ficha assinada não elide a obrigação de implantar o controle formal de entrega.",
+  "epiRecomendados": "Os EPIs recomendados devem ser fornecidos conforme o risco de cada GHE, com CA válido, treinamento NR-6 e fiscalização de uso. As imagens do Apêndice B ilustram os modelos típicos para condomínio (limpeza, portaria e conservação).",
+  "epiCa": "O Certificado de Aprovação (CA) é o documento emitido pelo Ministério do Trabalho e Emprego que atesta que o Equipamento de Proteção Individual foi ensaiado e aprovado. Todo EPI de uso obrigatório deve possuir CA vigente, marcado no equipamento ou na embalagem, e correspondente ao risco a que se destina.",
+  "epiValidade": "A validade do CA deve ser consultada no cadastro oficial do MTE antes da aquisição e periodicamente. EPI com CA vencido, adulterado ou incompatível com o risco não deve ser utilizado. Recomenda-se inspeção dos equipamentos, substituição tempestiva e arquivo das fichas de entrega pelo prazo do PGR.",
+  "final": "Este PGR permanece vinculado aos dados cadastrados no sistema. Inventário, DRPS coletivo e plano de ação devem ser atualizados sempre que houver mudança nos processos, ambientes, atividades, organização do trabalho ou controles.",
+  "registro": "O inventário de riscos e o histórico das atualizações devem ser mantidos por no mínimo 20 anos, disponíveis aos trabalhadores e às autoridades competentes, conforme NR-1.",
+  "revisoes": "O controle de revisões serve ao propósito de registrar as alterações do documento, facilitando o manejo de dados atualizados para gestão integrada de qualidade, saúde e meio ambiente, bem como norteador para acompanhamento do envio de informações que sofram alterações ao longo da vigência do programa.",
+  "refs": "NR-1 (GRO/PGR) — Portaria SEPRT n.º 6.730/2020; NR-6; NR-7; NR-9; NR-15; NR-16; NR-17; Portaria MTP n.º 25/94; Lei 9.732/1998; Decreto 3.048/99; IN INSS/PRES n.º 77/2015; NHO FUNDACENTRO; Manual de Orientação do eSocial (leiautes vigentes)."
+};
+
+export const PCMSO_TEXTS = {
+  "apresentacao": "O presente documento foi desenvolvido em atendimento à Norma Regulamentadora nº 07, do Ministério do Trabalho e Emprego, que estabelece diretrizes e requisitos para o desenvolvimento do Programa de Controle Médico de Saúde Ocupacional (PCMSO) nas organizações, com o objetivo de proteger e preservar a saúde de seus empregados em relação aos riscos ocupacionais. Aprovado pela Portaria n.º 3.214, de 08 de junho de 1978.",
+  "sumario": [
+    "1. Identificação do estabelecimento",
+    "2. Introdução",
+    "2.1. Médico responsável do PCMSO",
+    "3. Desenvolvimento",
+    "3.1. Exame admissional",
+    "3.2. Exame periódico",
+    "3.3. Exame de retorno ao trabalho",
+    "3.4. Exame de mudança de risco ocupacional",
+    "3.5. Exame demissional",
+    "3.6. Exames complementares",
+    "4. Atestado de Saúde Ocupacional — ASO",
+    "5. Registro e documentações obrigatórias",
+    "6. Planejamento de exames médicos clínicos e complementares",
+    "7. Disposições finais",
+    "8. Responsabilidade técnica",
+    "9. Anexos — eSocial e procedimentos diagnósticos"
+  ],
+  "intro": "Este programa atende à NR-7 e está harmonizado com o PGR do estabelecimento. Tem caráter de prevenção, rastreamento e diagnóstico precoce dos agravos à saúde relacionados ao trabalho, inclusive de natureza subclínica.",
+  "tipos": "No desenvolvimento do PCMSO incluem-se os exames: admissional; periódico; de retorno ao trabalho; de mudança de risco ocupacional; e demissional. Compreendem exame clínico e exames complementares, conforme esta NR e as demais aplicáveis.",
+  "aso": "Para cada exame clínico ocupacional o médico emitirá ASO, disponibilizado ao empregado. O ASO contém, no mínimo: razão social e CNPJ; identificação do empregado e função; perigos do PGR que necessitem de controle médico; exames realizados; apto ou inapto; e identificação do médico.",
+  "registro": "Os dados dos exames devem ser registrados em prontuário médico individual, mantido por no mínimo 20 anos após o desligamento. Anualmente o médico elabora o relatório analítico do PCMSO.",
+  "final": "Este PCMSO deve ser reavaliado quando houver revisão do PGR, mudança de postos, funções ou modos de trabalho, ou por recomendação de autoridade competente.",
+  "esocial": "Os exames e riscos ocupacionais devem observar a nomenclatura e os leiautes vigentes do eSocial (tabela de procedimentos diagnósticos e eventos de SST)."
+};
+
+export const LTCAT_TEXTS = {
+  "apresentacao": "O presente laudo foi desenvolvido em atendimento à Lei 9.732, de 11/12/1998, e às Normas Regulamentadoras nº 15 e 16, do Ministério do Trabalho e Emprego, que estabelecem os parâmetros e a obrigatoriedade da elaboração por parte de todos os empregadores e instituições que admitam trabalhadores como empregados, com o intuito de fornecer parecer acerca do direito a insalubridade, periculosidade e aposentadoria especial.",
+  "sumario": [
+    "1. Introdução",
+    "2. Objetivos específicos",
+    "3. Identificação do estabelecimento avaliado",
+    "3.1. Definição dos riscos ambientais",
+    "4. Técnica empregada",
+    "4.1. Análise qualitativa",
+    "5. Disposições legais (insalubridade, periculosidade e aposentadoria especial)",
+    "6. Constatações durante a visita técnica (GHE)",
+    "7. Resumo do parecer técnico",
+    "8. Registro fotográfico do estabelecimento",
+    "9. Responsabilidade técnica",
+    "Anexo — eSocial (agentes nocivos e financiamento da aposentadoria especial)"
+  ],
+  "intro": "A Lei 9.732/1998 instituiu critérios de verificação das condições do ambiente de trabalho para concessão de aposentadoria especial, mediante LTCAT. A empresa que não mantiver o laudo atualizado ou emitir comprovação em desacordo com o laudo sujeita-se às penalidades legais (Decreto 3.048/99).",
+  "objetivos": "Objetivos específicos: garantir a saúde e a integridade dos trabalhadores; avaliar atividades e locais frente às NR-15 e NR-16 e anexos; definir funções com direito a adicional de insalubridade ou periculosidade; fundamentar o PPP.",
+  "ambientais": "Consideram-se riscos ambientais os agentes físicos, químicos e biológicos que, em função da natureza, concentração ou intensidade e tempo de exposição, sejam capazes de causar danos à saúde.",
+  "tecnica": "A técnica segue a NR-15, a NR-16, a IN INSS/PRES nº 77/2015 e as NHO da FUNDACENTRO. Neste laudo a análise dos agentes é qualitativa, com base no inventário do PGR. Medições quantitativas, quando existirem, devem ser anexadas.",
+  "final": "Este LTCAT deve ser atualizado quando houver mudança de processo, ambiente, função, controles ou resultados quantitativos. Não substitui o PGR nem o PCMSO."
+};
+
+export const NR1_TEXTS = {
+  "apresentacao": "O presente diagnóstico foi desenvolvido em atendimento à Norma Regulamentadora nº 01, do Ministério do Trabalho e Emprego, quanto à identificação, avaliação e informação dos riscos psicossociais relacionados ao trabalho. Os resultados subsidiam o Gerenciamento de Riscos Ocupacionais (GRO) e integram o Programa de Gerenciamento de Riscos (PGR) da organização.",
+  "sumario": [
+    "1. Identificação da organização",
+    "2. Objetivo e fundamento legal",
+    "3. Metodologia do DRPS",
+    "4. Resultado coletivo por tópico",
+    "5. Fontes geradoras e agravos",
+    "6. Medidas organizacionais e integração com o PGR",
+    "7. Responsabilidade técnica"
+  ],
+  "objetivo": "A NR-1 exige que os riscos psicossociais relacionados ao trabalho sejam identificados, avaliados e informados no PGR. Este documento registra o Diagnóstico de Riscos Psicossociais (DRPS) de forma coletiva e confidencial, sem identificação nominal dos trabalhadores.",
+  "metodo": "O instrumento contém 50 questões distribuídas em 13 tópicos, com escala de 1 (Nunca) a 5 (Sempre). Parte das questões é de lógica invertida. A média coletiva por tópico segue o modelo NR-01: média das respostas (inclusive não preenchidas), arredondamento para cima, conversão para gravidade 1 Baixa / 2 Média / 3 Alta e média dessas gravidades. Classificação do tópico: ≤ 1,66 Baixa; ≤ 2,32 Média; > 2,32 Alta. A participação é confidencial e voluntária, por link exclusivo do condomínio.",
+  "medidas": "Os tópicos em gravidade alta devem ser tratados no plano de ação do PGR, com medidas organizacionais e relacionais — canal de denúncia, suporte da liderança, clareza de papel, dimensionamento de equipe, comunicação e reconhecimento. Reaplicar o DRPS após as intervenções ou quando houver mudança relevante na organização do trabalho.",
+  "confidencial": "As respostas individuais não constam deste documento. Informa-se apenas o resultado coletivo, por tópico, disponível aos trabalhadores interessados, aos seus representantes e à Inspeção do Trabalho, nos termos da NR-1.",
+  "final": "Este diagnóstico permanece vinculado ao cadastro e às respostas coletadas no sistema. Deve ser atualizado sempre que o DRPS for reaplicado ou quando o PGR for revisado."
+};
