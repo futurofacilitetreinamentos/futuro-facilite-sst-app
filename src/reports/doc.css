@@ -1,0 +1,649 @@
+/* Document stylesheet (page model + visual standard).
+ * Processed by Paged.js (paginate.ts imports it with ?raw); it is NOT loaded
+ * globally, so the @page rules never touch the app.
+ *
+ * Selectors that drive pagination (page:, break-*) must NOT be scoped under
+ * .pgr-doc: Paged.js matches them against the bare content fragment.
+ * Visual rules are scoped under .pgr-doc (the render target carries it).
+ */
+
+/* ---------------------------------------------------------------- pages */
+@page {
+  size: A4 portrait;
+  margin: 37mm 20mm 27mm 30mm;
+}
+
+@page pretexto {
+  size: A4 portrait;
+  margin: 37mm 20mm 27mm 30mm;
+}
+
+@page paisagem {
+  size: A4 landscape;
+  margin: 34mm 18mm 25mm 18mm;
+}
+
+@page capa {
+  size: A4 portrait;
+  margin: 0;
+}
+
+/* Páginas de corpo em retrato: página nomeada, porque o Paged.js troca as margens
+   do @page raiz pelo padrão de 1in (o logo invadia o primeiro título). As regras
+   abaixo (capa, pretexto, paisagem) vêm depois e prevalecem. */
+@page corpo {
+  size: A4 portrait;
+  margin: 37mm 20mm 27mm 30mm;
+}
+
+.pg-sec {
+  page: corpo;
+}
+
+.pg-capa {
+  page: capa;
+}
+
+.pg-pretexto {
+  page: pretexto;
+}
+
+.pg-landscape {
+  page: paisagem;
+}
+
+.pg-break,
+.pg-break-before {
+  break-before: page;
+}
+
+.pg-keep {
+  break-inside: avoid;
+}
+
+.pg-h,
+.pg-sub,
+.pg-caption {
+  break-after: avoid;
+}
+
+.pgr-table tr,
+.pg-row,
+.pg-sign-block,
+.pg-toc-row {
+  break-inside: avoid;
+}
+
+/* Landscape sheets (Paged.js only sizes the page box of named pages). */
+.pagedjs_page.pagedjs_paisagem_page {
+  --pagedjs-width: 297mm;
+  --pagedjs-height: 210mm;
+  --pagedjs-width-right: 297mm;
+  --pagedjs-height-right: 210mm;
+  --pagedjs-width-left: 297mm;
+  --pagedjs-height-left: 210mm;
+}
+
+/* ---------------------------------------------------------------- base */
+.pgr-doc,
+.pgr-doc *,
+.pgr-doc *::before,
+.pgr-doc *::after {
+  box-sizing: border-box;
+}
+
+.pgr-doc {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  line-height: 1.6;
+  color: #000;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pgr-doc .pagedjs_page {
+  background: #fff;
+}
+
+.pgr-doc p {
+  margin: 0 0 8pt;
+}
+
+.pgr-doc .pgr-text {
+  margin: 0 0 8pt;
+  text-align: justify;
+  white-space: pre-line;
+  orphans: 2;
+  widows: 2;
+}
+
+.pgr-doc .pgr-text p {
+  margin: 0 0 6pt;
+}
+
+.pgr-doc b,
+.pgr-doc strong {
+  font-weight: bold;
+}
+
+.pgr-doc .pg-ul {
+  margin: 0 0 8pt;
+  padding-left: 12mm;
+  text-align: justify;
+}
+
+.pgr-doc .pg-ul li {
+  margin: 0 0 2pt;
+}
+
+/* ---------------------------------------------------------------- headings */
+.pgr-doc .pg-h {
+  display: flex;
+  align-items: baseline;
+  margin: 14pt 0 8pt;
+  color: #000;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-align: left;
+  border: 0;
+}
+
+.pgr-doc .pg-sec > .pg-h:first-child,
+.pgr-doc .pg-sec > :first-child {
+  margin-top: 0;
+}
+
+.pgr-doc .pg-h1 {
+  font-size: 14pt;
+  font-weight: bold;
+  padding-left: 6mm;
+}
+
+.pgr-doc .pg-h1 .pg-hn {
+  flex: 0 0 12mm;
+}
+
+.pgr-doc .pg-h2 {
+  font-size: 12pt;
+  font-weight: normal;
+  padding-left: 6mm;
+}
+
+.pgr-doc .pg-h2 .pg-hn {
+  flex: 0 0 13mm;
+}
+
+.pgr-doc .pg-h3 {
+  font-family: 'Arial Narrow', 'Liberation Sans Narrow', 'Roboto Condensed', Arial, sans-serif;
+  font-stretch: condensed;
+  font-size: 12pt;
+  font-weight: normal;
+  padding-left: 12mm;
+}
+
+.pgr-doc .pg-h3 .pg-hn {
+  flex: 0 0 16mm;
+}
+
+.pgr-doc .pg-ht {
+  flex: 1 1 auto;
+}
+
+/* unnumbered title (APRESENTAÇÃO, ANEXO, APÊNDICE …) */
+.pgr-doc .pg-h1.pg-hu {
+  font-size: 12pt;
+  padding-left: 0;
+}
+
+/* bold uppercase sub-title outside the numbering */
+.pgr-doc .pg-sub {
+  margin: 10pt 0 5pt;
+  font-size: 12pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #000;
+}
+
+/* ---------------------------------------------------------------- apresentação */
+.pgr-doc .pg-apresentacao .pg-h {
+  border-bottom: 0.75pt solid #a6a6a6;
+  padding-bottom: 4pt;
+  margin-bottom: 10pt;
+}
+
+.pgr-doc .pg-apresentacao .pgr-text {
+  border-bottom: 0.75pt solid #a6a6a6;
+  padding-bottom: 10pt;
+}
+
+/* ---------------------------------------------------------------- sumário */
+.pgr-doc .pg-toc-title {
+  margin: 0 0 16pt;
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pgr-doc .pg-toc-row {
+  display: flex;
+  align-items: flex-end;
+  margin: 0 0 10pt;
+  color: #000;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 12pt;
+  line-height: 1.35;
+}
+
+.pgr-doc .pg-toc-n {
+  flex: 0 0 10mm;
+  /* título longo quebra em duas linhas: o número fica na primeira, pontilhado e página na última */
+  align-self: flex-start;
+}
+
+.pgr-doc .pg-toc-l0 .pg-toc-n {
+  flex-basis: 0;
+}
+
+.pgr-doc .pg-toc-l2 {
+  padding-left: 8mm;
+}
+
+.pgr-doc .pg-toc-l2 .pg-toc-n {
+  flex-basis: 12mm;
+}
+
+.pgr-doc .pg-toc-l3 {
+  padding-left: 16mm;
+}
+
+.pgr-doc .pg-toc-l3 .pg-toc-n {
+  flex-basis: 15mm;
+}
+
+.pgr-doc .pg-toc-t {
+  flex: 0 1 auto;
+  /* reserva espaço para o pontilhado e o número da página */
+  max-width: calc(100% - 32mm);
+}
+
+.pgr-doc .pg-toc-d {
+  flex: 1 1 4mm;
+  min-width: 4mm;
+  margin: 0 1mm 0.32em;
+  border-bottom: 1.3pt dotted #000;
+}
+
+.pg-toc-row::after {
+  content: target-counter(attr(href), page);
+  flex: 0 0 auto;
+  min-width: 5mm;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------- tables */
+.pgr-doc .pg-caption {
+  margin: 6pt 0 3pt;
+  font-size: 10pt;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.pgr-doc .pgr-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 10pt;
+  font-family: 'Arial Narrow', 'Liberation Sans Narrow', 'Roboto Condensed', Arial, sans-serif;
+  font-stretch: condensed;
+  font-size: 11pt;
+  line-height: 1.25;
+  color: #000;
+}
+
+.pgr-doc .pgr-table th,
+.pgr-doc .pgr-table td {
+  border: 0.75pt solid #d8d9d8;
+  padding: 1.3mm 2mm;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.pgr-doc .pgr-table th {
+  background: #f1f2f1;
+  font-weight: bold;
+  color: #000;
+}
+
+.pgr-doc .pgr-table thead th {
+  text-align: center;
+}
+
+.pgr-doc .pgr-table.compact {
+  font-size: 10pt;
+}
+
+.pgr-doc .pgr-table.compact th,
+.pgr-doc .pgr-table.compact td {
+  padding: 1mm 1.5mm;
+}
+
+.pgr-doc .pgr-table.pg-center td {
+  text-align: center;
+}
+
+.pgr-doc .pgr-table .pg-band {
+  background: #f1f2f1;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pgr-doc .pgr-table tr.alta td {
+  background: #fdecea;
+}
+
+.pgr-doc .pgr-table.pg-rev td {
+  height: 7mm;
+  text-align: center;
+}
+
+/* GR colours (Quadro 1 / inventory) */
+.pgr-doc .gr-T {
+  background: #b1ebb1 !important;
+}
+
+.pgr-doc .gr-M {
+  background: #ffff99 !important;
+}
+
+.pgr-doc .gr-S {
+  background: #ffdb69 !important;
+}
+
+.pgr-doc .gr-IT {
+  background: #ff795b !important;
+}
+
+.pgr-doc .pg-matrix {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 12pt;
+}
+
+.pgr-doc .pg-matrix td {
+  text-align: center;
+}
+
+.pgr-doc .pg-matrix .pg-corner {
+  background: #fff;
+  border: 0;
+}
+
+.pgr-doc .pg-matrix .pg-vert {
+  width: 9mm;
+  padding: 0;
+  text-align: center;
+}
+
+.pgr-doc .pg-matrix .pg-vert span {
+  display: inline-block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.05em;
+}
+
+.pgr-doc .pg-footnote {
+  font-size: 9pt;
+  font-style: italic;
+  line-height: 1.3;
+  margin: 2pt 0 8pt;
+}
+
+/* ---------------------------------------------------------------- misc blocks */
+.pgr-doc .pgr-kpi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+  margin: 2mm 0 6pt;
+}
+
+.pgr-doc .pgr-kpi span {
+  border: 0.75pt solid #d8d9d8;
+  background: #f1f2f1;
+  padding: 1mm 2.5mm;
+  font-size: 10pt;
+  line-height: 1.3;
+}
+
+.pgr-doc .pg-row {
+  display: flex;
+  gap: 6mm;
+  margin: 0 0 5mm;
+}
+
+.pgr-doc .pg-row > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.pgr-doc .pgr-epi-card,
+.pgr-doc .pgr-foto-card {
+  border: 0.75pt solid #d8d9d8;
+  padding: 2mm;
+  text-align: center;
+  background: #fff;
+  line-height: 1.3;
+}
+
+.pgr-doc .pgr-epi-card img {
+  width: 100%;
+  height: 40mm;
+  object-fit: contain;
+  background: #fff;
+}
+
+.pgr-doc .pgr-foto-card img {
+  width: 100%;
+  height: 58mm;
+  object-fit: cover;
+  background: #eef0ee;
+}
+
+.pgr-doc .pgr-epi-card b,
+.pgr-doc .pgr-foto-card b {
+  display: block;
+  margin-top: 1.5mm;
+  font-size: 10pt;
+  color: #000;
+}
+
+.pgr-doc .pgr-epi-card span,
+.pgr-doc .pgr-foto-card span {
+  display: block;
+  margin-top: 0.5mm;
+  font-size: 9pt;
+  color: #333;
+}
+
+/* ---------------------------------------------------------------- responsabilidade técnica */
+.pgr-doc .pg-date {
+  margin: 14pt 0 22mm;
+  text-align: right;
+}
+
+.pgr-doc .pg-sign-grid {
+  display: flex;
+  justify-content: center;
+  gap: 14mm;
+  margin-top: 4mm;
+}
+
+.pgr-doc .pg-sign-block {
+  flex: 0 1 110mm;
+  text-align: center;
+  line-height: 1.45;
+}
+
+.pgr-doc .pg-sign-block::before {
+  content: '';
+  display: block;
+  margin: 0 auto 2mm;
+  width: 75mm;
+  max-width: 100%;
+  border-top: 0.75pt solid #000;
+}
+
+/* ---------------------------------------------------------------- cover (unchanged look) */
+.pgr-doc .pg-capa {
+  position: relative;
+  width: 210mm;
+  height: 296.5mm;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.pgr-doc .pgr-cover {
+  text-align: center;
+}
+
+.pgr-doc .pgr-cover-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
+}
+
+.pgr-doc .pgr-cover-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  line-height: normal;
+}
+
+.pgr-doc .pgr-cover-mask {
+  position: absolute;
+  top: 68mm;
+  right: 0;
+  width: 132mm;
+  height: 62mm;
+  background: #fff;
+}
+
+.pgr-doc .pgr-cover-rebadge {
+  position: absolute;
+  top: 76mm;
+  right: 18mm;
+  min-width: 52mm;
+  background: #c6ea2a;
+  color: #111;
+  font-weight: 800;
+  font-size: 26pt;
+  letter-spacing: 0.02em;
+  padding: 3.2mm 8mm;
+  border-radius: 11mm;
+  text-align: center;
+  line-height: 1;
+}
+
+.pgr-doc .pgr-cover-retitle {
+  position: absolute;
+  top: 100mm;
+  right: 10mm;
+  width: 110mm;
+  text-align: right;
+  font-size: 13.5pt;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.25;
+  background: #fff;
+  padding: 1mm 8mm 5mm 0;
+}
+
+.pgr-doc .pgr-cover-id {
+  position: absolute;
+  top: 138mm;
+  left: 30mm;
+  right: 14mm;
+  text-align: left;
+  color: #111;
+}
+
+.pgr-doc .pgr-cover-id h2 {
+  margin: 0 0 3.5mm;
+  font-size: 16pt;
+  font-weight: 800;
+  color: #111;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.pgr-doc .pgr-cover-id p {
+  margin: 0 0 0.8mm;
+  font-size: 12pt;
+  color: #111;
+  line-height: 1.3;
+}
+
+.pgr-doc .pgr-cover-id b {
+  font-weight: 800;
+}
+
+/* ---------------------------------------------------------------- letterhead (drawn by paginate.ts) */
+.pgr-doc .pg-lh-logo {
+  position: absolute;
+  top: 8mm;
+  left: 15mm;
+  width: 38mm;
+  height: 22mm;
+  overflow: hidden;
+  z-index: 3;
+}
+
+/* crop of the 800×800 logo.jpeg: mark spans x 10%–89.4%, y 25.6%–71.9% */
+.pgr-doc .pg-lh-logo img {
+  position: absolute;
+  left: -4.75mm;
+  top: -12.2mm;
+  width: 47.5mm;
+  height: 47.5mm;
+  max-width: none;
+}
+
+.pgr-doc .pg-lh-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7.5mm;
+  background: #0c7a5a;
+  border-top: 2.5mm solid #c6ea2a;
+  z-index: 3;
+}
+
+.pgr-doc .pg-lh-num {
+  position: absolute;
+  right: 20mm;
+  bottom: 12mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  line-height: 1;
+  color: #000;
+  z-index: 3;
+}
+
+.pgr-doc .pagedjs_paisagem_page .pg-lh-logo {
+  left: 18mm;
+}
+
+.pgr-doc .pagedjs_paisagem_page .pg-lh-num {
+  right: 18mm;
+  bottom: 11mm;
+}

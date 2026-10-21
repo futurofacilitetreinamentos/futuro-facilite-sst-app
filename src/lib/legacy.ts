@@ -1,14 +1,25 @@
 // Converte os dados do banco para o formato que os geradores de documentos
 // (portados da V8) esperam: tudo em string e relações por nome.
 import { useQuery } from '@tanstack/react-query'
-import type { DocContext, LegacyInspection, LegacyProject } from '../reports/types'
+import type { DocContext, LegacyInspection, LegacyMedicao, LegacyProject } from '../reports/types'
 import { must, supabase } from './supabase'
 import { signedUrls } from './db'
 import type {
-  Agendamento, Condominio, DrpsResposta, Equipe, Funcao, Ghe, Inspecao, Risco, Setor,
+  Agendamento, Condominio, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Medicao, Risco, Setor,
 } from './types'
 
 const s = (v: unknown) => (v == null ? '' : String(v))
+const bool = (v: unknown) => (typeof v === 'boolean' ? v : null)
+const int = (v: unknown) => (v == null || v === '' || !Number.isFinite(Number(v)) ? null : Math.trunc(Number(v)))
+
+function medicao(m: Medicao | null | undefined): LegacyMedicao | null {
+  if (!m || typeof m !== 'object') return null
+  const out: LegacyMedicao = {
+    agente: s(m.agente), tecnica: s(m.tecnica), equipamento: s(m.equipamento), data: s(m.data).slice(0, 10),
+    resultado: s(m.resultado), limite: s(m.limite), unidade: s(m.unidade),
+  }
+  return Object.values(out).some(Boolean) ? out : null
+}
 
 export interface CondoBundle {
   condo: Condominio
@@ -20,13 +31,21 @@ export interface CondoBundle {
   inspecoes: Inspecao[]
   drps: DrpsResposta[]
   equipe: Equipe[]
+  revisoes: DocRevisao[]
+  epis: Epi[]
 }
 
 export async function fetchBundle(condoId: string): Promise<CondoBundle> {
   const by = <T>(table: string, order = 'created_at', ascending = true) =>
     supabase.from(table).select('*').eq('condominio_id', condoId).order(order, { ascending })
       .then((r) => must(r) as T[])
-  const [condo, setores, funcoes, ghesRaw, riscos, agenda, inspecoes, drps, equipe] = await Promise.all([
+  // Tabelas do 0002: se a migração ainda não foi aplicada, os documentos saem sem elas.
+  const optional = <T>(table: string) =>
+    supabase.from(table).select('*').eq('condominio_id', condoId).order('created_at').then((r) => {
+      if (r.error) { console.warn(`Tabela ${table} indisponível (migração 0002 aplicada?):`, r.error.message); return [] as T[] }
+      return (r.data ?? []) as T[]
+    })
+  const [condo, setores, funcoes, ghesRaw, riscos, agenda, inspecoes, drps, equipe, revisoes, epis] = await Promise.all([
     supabase.from('condominios').select('*').eq('id', condoId).single().then((r) => must(r) as Condominio),
     by<Setor>('setores'),
     by<Funcao>('funcoes'),
@@ -37,9 +56,11 @@ export async function fetchBundle(condoId: string): Promise<CondoBundle> {
     by<Inspecao>('inspecoes', 'created_at', false),
     by<DrpsResposta>('drps_respostas'),
     supabase.from('equipe').select('*').order('nome').then((r) => must(r) as Equipe[]),
+    optional<DocRevisao>('doc_revisoes'),
+    optional<Epi>('epis'),
   ])
   const ghes = ghesRaw.map(({ ghe_funcoes, ...g }) => ({ ...g, funcao_ids: ghe_funcoes.map((x) => x.funcao_id) }))
-  return { condo, setores, funcoes, ghes, riscos, agenda, inspecoes, drps, equipe }
+  return { condo, setores, funcoes, ghes, riscos, agenda, inspecoes, drps, equipe, revisoes, epis }
 }
 
 export function toLegacyProject(b: CondoBundle): LegacyProject {
@@ -77,22 +98,49 @@ export function toLegacyProject(b: CondoBundle): LegacyProject {
       engSeguranca: eng?.nome ?? '',
       creaEng: eng?.registro ?? '',
       engId: eng?.id ?? '',
+      cep: s(c.cep),
+      cidadeUf: s(c.cidade_uf),
+      ltcatRt: c.ltcat_rt === 'medico' ? 'medico' : 'engenheiro',
     },
     setores: b.setores.map((x) => ({ nome: x.nome, ambiente: x.ambiente, descricao: x.descricao })),
     funcoes: b.funcoes.map((x) => ({
       nome: x.nome, setor: setorNome(x.setor_id), quantidade: s(x.quantidade), cbo: x.cbo, atividades: x.atividades,
+      cargaHoraria: s(x.carga_horaria),
     })),
     ghe: b.ghes.map((g) => ({
       nome: g.nome, setor: setorNome(g.setor_id), descricao: g.descricao,
       funcoes: g.funcao_ids.map(funcaoNome).filter(Boolean).join(', '),
+      numero: int(g.numero) ?? undefined,
+      tipoAtividade: s(g.tipo_atividade),
+      descricaoAmbiente: s(g.descricao_ambiente),
+      parecerInsalubridade: s(g.parecer_insalubridade),
+      parecerPericulosidade: s(g.parecer_periculosidade),
+      parecerAposentadoria: s(g.parecer_aposentadoria),
+      atividadesPerigosas: s(g.atividades_perigosas),
     })),
     riscos: b.riscos.map((r) => ({
       ghe: gheNome(r.ghe_id), funcao: funcaoNome(r.funcao_id), grupo: r.grupo, perigo: r.perigo, fonte: r.fonte,
       dano: r.dano, controles: r.controles, prob: s(r.prob), sev: s(r.sev), acao: r.acao,
       responsavel: r.responsavel, prazo: s(r.prazo), status: r.status,
+      codEsocial: s(r.cod_esocial), meioPropagacao: s(r.meio_propagacao), tecnicaAnalise: s(r.tecnica_analise),
+      nivelExposicao: s(r.nivel_exposicao), controlesAdm: s(r.controles_adm), controlesEpc: s(r.controles_epc),
+      controlesEpi: s(r.controles_epi), indicadoresSaude: s(r.indicadores_saude),
+      prioridade: (['A', 'B', 'C', 'D'] as const).find((x) => x === r.prioridade) ?? '',
+      recursos: s(r.recursos), onde: s(r.onde), formaAfericao: s(r.forma_afericao), habitualidade: s(r.habitualidade),
+      epcEficaz: bool(r.epc_eficaz), epiEficaz: bool(r.epi_eficaz),
+      nr15Anexo: s(r.nr15_anexo), grauInsalubridade: s(r.grau_insalubridade), nr16Anexo: s(r.nr16_anexo),
+      anexoIvCodigo: s(r.anexo_iv_codigo), aposentadoriaAnos: int(r.aposentadoria_anos), medicao: medicao(r.medicao),
     })),
     agenda: b.agenda.map((a) => ({
       id: a.id, data: a.data, hora: s(a.hora).slice(0, 5), tecnico: a.tecnico, obs: a.obs, status: a.status,
+    })),
+    revisoes: [...b.revisoes]
+      .sort((x, y) => x.documento.localeCompare(y.documento) || x.numero.localeCompare(y.numero, 'pt-BR', { numeric: true }))
+      .map((r) => ({ documento: r.documento, numero: r.numero, data: s(r.data).slice(0, 10), itens: r.itens })),
+    epis: b.epis.map((e) => ({
+      ghe: gheNome(e.ghe_id), funcao: funcaoNome(e.funcao_id), nome: e.nome, ca: s(e.ca),
+      validadeCa: s(e.validade_ca).slice(0, 10), eficaz: bool(e.eficaz) ?? undefined, imagem: s(e.imagem),
+      status: e.status === 'recomendado' ? 'recomendado' : 'existente',
     })),
   }
 }

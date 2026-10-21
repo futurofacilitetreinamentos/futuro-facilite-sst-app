@@ -35,14 +35,27 @@ export function dataExtenso(d?: string, now: Date = new Date()): string {
 
 export type GrupoLetra = 'F' | 'Q' | 'B' | 'E' | 'A' | 'P';
 
+/**
+ * Letter of a risk group in the inventories (reference legend):
+ * F Físico · Q Químico · B Biológico · E Ergonômico · A Acidente · P Perigo.
+ * Psicossocial maps to 'E' (organizational/ergonomic factor, NR-17); the PGR
+ * does not list psychosocial risks in the GHE inventory at all — they are
+ * covered in item 7.2 (DRPS) — see isPsicossocial().
+ */
 export function grupoLetra(g?: string): GrupoLetra {
   const t = String(g || '').toLowerCase();
+  if (/perigo/.test(t)) return 'P';
   if (/qu[ií]m/.test(t)) return 'Q';
   if (/biol/.test(t)) return 'B';
   if (/ergo/.test(t)) return 'E';
   if (/acid/.test(t)) return 'A';
-  if (/psico/.test(t)) return 'P';
+  if (/psico/.test(t)) return 'E';
   return 'F';
+}
+
+/** Risk group "Psicossocial relacionado ao trabalho" (any spelling). */
+export function isPsicossocial(g?: string): boolean {
+  return /psico/i.test(String(g || ''));
 }
 
 export interface GheGroup {

@@ -1,0 +1,87 @@
+﻿/* Estilos específicos do PCMSO (visual: escopar em .doc-pcmso; regras de paginação podem ficar sem escopo). */
+
+/* ---- pagination hooks (unscoped: Paged.js matches the bare fragment) */
+.pc-ghe tbody.pg-keep,
+.pc-exames.pg-keep {
+  break-inside: avoid;
+}
+
+.pc-bloco > .pg-h {
+  break-after: avoid;
+}
+
+/* ---- 1. identificação */
+.doc-pcmso .pc-ident th,
+.doc-pcmso .pc-ident td {
+  padding: 2.4mm 2mm;
+}
+
+.doc-pcmso .pc-ident th {
+  font-size: 11pt;
+}
+
+.doc-pcmso .pc-ident td {
+  font-size: 12pt;
+}
+
+/* ---- lists (3, 4, 5) */
+.doc-pcmso .pc-aso .pc-lead {
+  margin-left: 12mm;
+}
+
+.doc-pcmso .pc-aso .pg-ul {
+  padding-left: 24mm;
+}
+
+.doc-pcmso .pc-alineas .pgr-text {
+  margin-left: 6mm;
+}
+
+/* ---- 6. GHE tables */
+.doc-pcmso .pc-ghe {
+  margin-bottom: 0;
+}
+
+.doc-pcmso .pc-ghe td,
+.doc-pcmso .pc-ghe th,
+.doc-pcmso .pc-exam td,
+.doc-pcmso .pc-exam th {
+  text-align: center;
+  vertical-align: middle;
+  padding: 2mm;
+}
+
+.doc-pcmso .pc-ghe .pc-grp {
+  background: #f2f2f2;
+  font-weight: bold;
+}
+
+.doc-pcmso .pc-band th {
+  background: #f2f2f2;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.doc-pcmso .pc-exam {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.doc-pcmso .pc-exam thead tr:first-child th {
+  border-top: 0;
+}
+
+.doc-pcmso .pc-exames {
+  margin-bottom: 12pt;
+}
+
+.doc-pcmso .pc-bloco + .pc-bloco {
+  margin-top: 8pt;
+}
+
+/* ---- 9. link */
+.doc-pcmso .pc-link {
+  color: #0563c1;
+  text-decoration: underline;
+  word-break: break-all;
+}

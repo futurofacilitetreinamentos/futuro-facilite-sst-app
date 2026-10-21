@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PHOTO_BUCKET, must, supabase } from './supabase'
 import type {
-  Agendamento, Condominio, DrpsResposta, Equipe, Funcao, Ghe, Inspecao, Profile, Risco, Setor,
+  Agendamento, Condominio, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Profile, Risco, Setor,
 } from './types'
 
 // Tabelas filhas de um condomínio, todas com a coluna condominio_id
-export type ChildTable = 'setores' | 'funcoes' | 'riscos' | 'agendamentos' | 'inspecoes' | 'drps_respostas'
+export type ChildTable =
+  | 'setores' | 'funcoes' | 'riscos' | 'agendamentos' | 'inspecoes' | 'drps_respostas' | 'doc_revisoes' | 'epis'
 
 type ChildRow = {
   setores: Setor
@@ -14,6 +15,8 @@ type ChildRow = {
   agendamentos: Agendamento
   inspecoes: Inspecao
   drps_respostas: DrpsResposta
+  doc_revisoes: DocRevisao
+  epis: Epi
 }
 
 const ORDER: Record<ChildTable, { column: string; ascending: boolean }> = {
@@ -23,6 +26,8 @@ const ORDER: Record<ChildTable, { column: string; ascending: boolean }> = {
   agendamentos: { column: 'data', ascending: false },
   inspecoes: { column: 'created_at', ascending: false },
   drps_respostas: { column: 'created_at', ascending: true },
+  doc_revisoes: { column: 'created_at', ascending: true },
+  epis: { column: 'created_at', ascending: true },
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,182 @@
+﻿/* Estilos específicos do LTCAT (visual: escopar em .doc-ltcat; regras de paginação podem ficar sem escopo). */
+
+/* ---------------------------------------------------------------- pagination (unscoped) */
+.lt-ana tr,
+.lt-resumo tr,
+.lt-crit tr {
+  break-inside: avoid;
+}
+
+/* ---------------------------------------------------------------- generic helpers */
+.doc-ltcat .pgr-table td.lt-c,
+.doc-ltcat .pgr-table th.lt-c,
+.doc-ltcat .lt-c {
+  text-align: center;
+}
+
+.doc-ltcat .pgr-table td.lt-l {
+  text-align: left;
+}
+
+.doc-ltcat .pgr-table td.lt-j {
+  text-align: justify;
+}
+
+/* ---------------------------------------------------------------- 3 identification / 4.1 tables */
+.doc-ltcat .lt-ident th {
+  width: 27%;
+}
+
+.doc-ltcat .lt-crit th[scope],
+.doc-ltcat .lt-crit tbody th {
+  text-align: center;
+}
+
+.doc-ltcat .lt-crit td {
+  text-align: justify;
+  font-size: 10.5pt;
+}
+
+.doc-ltcat .lt-crit td p {
+  margin: 0 0 4pt;
+}
+
+.doc-ltcat .lt-crit td p:last-child {
+  margin-bottom: 0;
+}
+
+.doc-ltcat .lt-formula {
+  margin: 4pt 0 2pt 22mm;
+  font-family: 'Cambria Math', 'Times New Roman', serif;
+  font-size: 13pt;
+}
+
+.doc-ltcat .lt-defs {
+  margin: 0 0 10pt;
+}
+
+.doc-ltcat .lt-nr15 tr.lt-revog td {
+  color: #1f6fbf;
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------------- GHE identification */
+.doc-ltcat .lt-gid td.lt-atv {
+  border-left: 0;
+  border-right: 0;
+  padding-top: 3mm;
+  padding-bottom: 3mm;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+.doc-ltcat .lt-gid td.lt-atv p {
+  margin: 0 0 4pt;
+}
+
+/* ---------------------------------------------------------------- landscape GHE analysis */
+.doc-ltcat .lt-ana {
+  font-size: 9.5pt;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.doc-ltcat .lt-ana + .lt-ana,
+.doc-ltcat .lt-ana + .lt-leg {
+  margin-top: 0;
+}
+
+.doc-ltcat .lt-ana th,
+.doc-ltcat .lt-ana td {
+  padding: 0.9mm 1.2mm;
+}
+
+.doc-ltcat .lt-ana th.lt-bar {
+  font-size: 10pt;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.doc-ltcat .lt-ana thead th {
+  font-size: 9pt;
+}
+
+.doc-ltcat .lt-dash {
+  margin: 0;
+  padding: 0 0 0 3.2mm;
+  list-style: none;
+}
+
+.doc-ltcat .lt-dash li {
+  position: relative;
+  text-align: left;
+}
+
+.doc-ltcat .lt-dash li::before {
+  content: '-';
+  position: absolute;
+  left: -3.2mm;
+}
+
+.doc-ltcat .lt-parecer td.lt-j b {
+  font-weight: bold;
+}
+
+.doc-ltcat .lt-parecer tr.lt-foot td {
+  height: 5mm;
+  background: #f1f2f1;
+}
+
+/* legend */
+.doc-ltcat .lt-leg {
+  margin-top: 5mm;
+  font-size: 9pt;
+  line-height: 1.2;
+}
+
+.doc-ltcat .lt-leg th,
+.doc-ltcat .lt-leg td {
+  padding: 0.6mm 1.2mm;
+  border-left: 0;
+  border-right: 0;
+}
+
+.doc-ltcat .lt-leg th.lt-legt {
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 10pt;
+}
+
+.doc-ltcat .lt-leg tr.lt-legh th {
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- 7 resumo */
+.doc-ltcat .lt-resumo {
+  font-size: 10pt;
+}
+
+.doc-ltcat .lt-resumo td,
+.doc-ltcat .lt-resumo th {
+  border-left: 0;
+  border-right: 0;
+  padding: 1.6mm 2mm;
+}
+
+.doc-ltcat .lt-resumo td[rowspan] {
+  border-right: 0.75pt solid #d8d9d8;
+}
+
+.doc-ltcat .lt-resumo td.lt-c {
+  border-right: 0.75pt solid #d8d9d8;
+}
+
+/* ---------------------------------------------------------------- 8 responsabilidade (single centred block, no line) */
+.doc-ltcat .lt-sign .pg-sign-block::before {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- anexo */
+.doc-ltcat .lt-esoc {
+  width: 100%;
+}

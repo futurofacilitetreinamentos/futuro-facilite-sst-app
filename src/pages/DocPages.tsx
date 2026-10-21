@@ -124,7 +124,7 @@ export function LtcatPage() {
             <PanelHead eyebrow="DOCUMENTO" title="LTCAT — Laudo Técnico das Condições Ambientais">
               <DocButtons title="LTCAT" build={buildLTCAT} />
             </PanelHead>
-            <Metrics items={[[s.agentes, 'Agentes'], [s.riscos, 'Riscos'], [s.ghes, 'GHE'], [s.engenheiroDefinido ? 'Sim' : 'Não', 'Engenheiro definido']]} />
+            <Metrics items={[[s.agentes, 'Agentes'], [s.riscos, 'Riscos'], [s.ghes, 'GHE'], [s.engenheiroDefinido ? 'Sim' : 'Não', 'Responsável definido']]} />
             <div className="notice">{s.notice}</div>
             <p style={{ fontSize: 13, lineHeight: 1.5 }}><b>Conclusão:</b> {s.conclusao}</p>
             {s.plan.agentes.length === 0 && <div className="empty">{s.semAgentes}</div>}

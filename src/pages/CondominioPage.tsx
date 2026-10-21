@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ErrorBox, Field, PanelHead, maskCnpj, type FieldDef } from '../components/ui'
-import { useEquipe, useRemove, useSave } from '../lib/db'
-import type { Condominio, EquipeTipo } from '../lib/types'
+import { CrudSection } from '../components/CrudSection'
+import { ErrorBox, Field, PanelHead, fmtDate, maskCep, maskCnpj, type FieldDef } from '../components/ui'
+import { useChildren, useEquipe, useRemove, useSave } from '../lib/db'
+import { DOCUMENTOS_REVISAO, type Condominio, type DocRevisao, type EquipeTipo } from '../lib/types'
 import { useCondo } from '../state/CondoProvider'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -16,6 +17,7 @@ const blank = (): Form => ({
   endereco: '', responsavel_empresa: '', contato_empresa: '', email_empresa: '',
   data_elaboracao: new Date().toISOString().slice(0, 10), atividade_empresa: 'Atividades de administração de condomínios prediais',
   resp_sst_id: null, medico_id: null, engenheiro_id: null,
+  cep: '', cidade_uf: 'Brasília-DF', ltcat_rt: 'engenheiro',
 })
 
 const FIELDS: FieldDef<Form>[] = [
@@ -27,6 +29,8 @@ const FIELDS: FieldDef<Form>[] = [
   { key: 'num_trabalhadores', label: 'Nº de trabalhadores', type: 'number', min: 0 },
   { key: 'data_elaboracao', label: 'Data de elaboração', type: 'date' },
   { key: 'endereco', label: 'Endereço', span: true },
+  { key: 'cep', label: 'CEP', placeholder: '00000-000', inputMode: 'numeric', maxLength: 9 },
+  { key: 'cidade_uf', label: 'Cidade/UF', placeholder: 'Brasília-DF' },
   { key: 'responsavel_empresa', label: 'Responsável (síndico)' },
   { key: 'contato_empresa', label: 'Telefone' },
   { key: 'email_empresa', label: 'E-mail', type: 'email' },
@@ -58,7 +62,7 @@ export default function CondominioPage() {
   }, [novo, condo?.id, condo?.updated_at])
 
   const set = (k: keyof Form, v: string | null) =>
-    setForm((f) => ({ ...f, [k]: k === 'cnpj' && v ? maskCnpj(v) : v }))
+    setForm((f) => ({ ...f, [k]: k === 'cnpj' && v ? maskCnpj(v) : k === 'cep' && v ? maskCep(v) : v }))
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -116,11 +120,65 @@ export default function CondominioPage() {
               </label>
             )
           })}
+          <label>
+            Responsável pelo LTCAT
+            <select value={form.ltcat_rt ?? 'engenheiro'} onChange={(e) => set('ltcat_rt', e.target.value)}>
+              <option value="engenheiro">Engenheiro de segurança (CREA)</option>
+              <option value="medico">Médico do trabalho (CRM)</option>
+            </select>
+          </label>
         </div>
         {equipe.length === 0 && (
           <p className="entity-meta">Cadastre os profissionais em <a href="#/equipe">Equipe técnica</a>.</p>
         )}
       </form>
+      {!novo && condo && <RevisoesSection condoId={condo.id} />}
     </div>
+  )
+}
+
+type RevForm = Omit<DocRevisao, 'id'> & { id?: string }
+const docLabel = (d: string) => DOCUMENTOS_REVISAO.find((x) => x.value === d)?.label ?? d
+
+/** Tabela "Revisões" da 2ª página de cada documento (doc_revisoes). */
+function RevisoesSection({ condoId }: { condoId: string }) {
+  const { data = [], error } = useChildren('doc_revisoes', condoId)
+  const save = useSave<RevForm>('doc_revisoes')
+  const remove = useRemove('doc_revisoes')
+  const order = DOCUMENTOS_REVISAO.map((d) => d.value as string)
+  const rows = [...data].sort((a, b) =>
+    order.indexOf(a.documento) - order.indexOf(b.documento) || a.numero.localeCompare(b.numero, 'pt-BR', { numeric: true }))
+  const nextNumero = (doc: string) => {
+    const nums = data.filter((r) => r.documento === doc).map((r) => parseInt(r.numero, 10)).filter(Number.isFinite)
+    return String((nums.length ? Math.max(...nums) : 0) + 1).padStart(3, '0')
+  }
+  const fields: FieldDef<RevForm>[] = [
+    { key: 'documento', label: 'Documento *', type: 'select', options: DOCUMENTOS_REVISAO, required: true },
+    { key: 'numero', label: 'Nº da revisão *', required: true, placeholder: '001', inputMode: 'numeric' },
+    { key: 'data', label: 'Data', type: 'date' },
+    { key: 'itens', label: 'Itens revisados', type: 'textarea', span: true, placeholder: 'Documento-Base e Anexos' },
+  ]
+  return (
+    <CrudSection<RevForm>
+      eyebrow="CONTROLE DE REVISÕES" title="Revisões dos documentos" singular="Revisão" rows={rows} fields={fields}
+      blank={() => ({
+        condominio_id: condoId, documento: 'pgr', numero: nextNumero('pgr'),
+        data: new Date().toISOString().slice(0, 10), itens: data.some((r) => r.documento === 'pgr') ? '' : 'Documento-Base e Anexos',
+      })}
+      render={(r) => ({
+        title: <>{docLabel(r.documento)} · revisão {r.numero || '—'}</>,
+        meta: [fmtDate(r.data), r.itens].filter(Boolean).join(' · '),
+      })}
+      onSave={(r) => save.mutateAsync({ ...r, data: r.data || null })}
+      onRemove={(id) => remove.mutateAsync(id)}
+      notice={
+        <>
+          <div className="notice">
+            Sem revisões cadastradas, cada documento mostra a revisão 001 com a data de elaboração (“Documento-Base e Anexos”).
+          </div>
+          {error && <ErrorBox error={'Não foi possível carregar as revisões (a migração 0002 já foi aplicada no banco?): ' + (error instanceof Error ? error.message : String(error))} />}
+        </>
+      }
+    />
   )
 }

@@ -62,6 +62,23 @@ export type FieldDef<T> = {
   placeholder?: string
   min?: number
   max?: number
+  /** Texto da opção vazia dos selects (padrão "— selecione —") */
+  emptyLabel?: string
+  inputMode?: 'text' | 'numeric' | 'decimal' | 'tel' | 'email'
+  maxLength?: number
+}
+
+/** Opções para campos sim/não/não avaliado gravados como boolean | null */
+export const BOOL_OPTIONS: Option[] = [
+  { value: 'true', label: 'Sim' },
+  { value: 'false', label: 'Não' },
+]
+
+/** Converte o valor de um select BOOL_OPTIONS ('' = não avaliado) para boolean | null */
+export function toBool(v: unknown): boolean | null {
+  if (v === true || v === 'true') return true
+  if (v === false || v === 'false') return false
+  return null
 }
 
 function normOptions(o: FieldDef<unknown>['options']): Option[] {
@@ -79,7 +96,7 @@ export function Field<T>({
   } else if (def.type === 'select') {
     input = (
       <select {...common} onChange={(e) => onChange(e.target.value)}>
-        <option value="">— selecione —</option>
+        <option value="">{def.emptyLabel ?? '— selecione —'}</option>
         {normOptions(def.options).map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
@@ -87,7 +104,10 @@ export function Field<T>({
     )
   } else {
     input = (
-      <input {...common} type={def.type ?? 'text'} min={def.min} max={def.max} onChange={(e) => onChange(e.target.value)} />
+      <input
+        {...common} type={def.type ?? 'text'} min={def.min} max={def.max} inputMode={def.inputMode} maxLength={def.maxLength}
+        onChange={(e) => onChange(e.target.value)}
+      />
     )
   }
   return (
@@ -96,6 +116,29 @@ export function Field<T>({
       {input}
     </label>
   )
+}
+
+/** Grupo recolhível de campos dentro de um formulário (ocupa a linha inteira). */
+export function Collapsible({
+  title, hint, children, defaultOpen,
+}: { title: string; hint?: string; children: ReactNode; defaultOpen?: boolean }) {
+  return (
+    <details
+      className="span2" open={defaultOpen}
+      style={{ gridColumn: '1 / -1', border: '1px solid #dde5e2', borderRadius: 10, padding: '8px 12px', background: '#fafcfb' }}
+    >
+      <summary style={{ cursor: 'pointer', fontWeight: 800, fontSize: 13, color: '#344054', padding: '4px 0' }}>
+        {title}
+        {hint && <span style={{ fontWeight: 600, fontSize: 11, color: '#667085', marginLeft: 6 }}>{hint}</span>}
+      </summary>
+      <div className="form-grid two" style={{ marginTop: 10 }}>{children}</div>
+    </details>
+  )
+}
+
+/** Máscara 00000-000 */
+export function maskCep(v: string) {
+  return v.replace(/\D/g, '').slice(0, 8).replace(/^(\d{5})(\d)/, '$1-$2')
 }
 
 /** Máscara 00.000.000/0000-00 */

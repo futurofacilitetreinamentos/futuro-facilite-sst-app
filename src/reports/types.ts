@@ -32,6 +32,12 @@ export interface LegacyEmpresa {
   engSeguranca?: string;
   creaEng?: string;
   engId?: string;
+  /** CEP, e.g. "70000-000". */
+  cep?: string;
+  /** City-UF for the date/place line, e.g. "Brasília-DF" (fallback "Brasília-DF"). */
+  cidadeUf?: string;
+  /** Who signs the LTCAT (default 'engenheiro'). */
+  ltcatRt?: 'engenheiro' | 'medico';
 }
 
 export interface LegacySetor {
@@ -47,6 +53,8 @@ export interface LegacyFuncao {
   quantidade?: string;
   cbo?: string;
   atividades?: string;
+  /** e.g. "44h semanais (12x36)". */
+  cargaHoraria?: string;
 }
 
 export interface LegacyGhe {
@@ -56,6 +64,17 @@ export interface LegacyGhe {
   /** Free text list of function names, e.g. "Porteiro, Zelador". */
   funcoes?: string;
   descricao?: string;
+  /** GHE numbering (GHE 01, 02…); absent = position in the list. */
+  numero?: number;
+  tipoAtividade?: string;
+  /** Override of setor.ambiente/descricao. */
+  descricaoAmbiente?: string;
+  /** Manual overrides of the automatic LTCAT conclusions ('' = automatic). */
+  parecerInsalubridade?: string;
+  parecerPericulosidade?: string;
+  parecerAposentadoria?: string;
+  /** NR-16 hazardous activities description; '' = "Não identificadas". */
+  atividadesPerigosas?: string;
 }
 
 export type LegacyRiscoGrupo =
@@ -64,7 +83,21 @@ export type LegacyRiscoGrupo =
   | 'Biológico'
   | 'Ergonômico'
   | 'Acidente'
-  | 'Psicossocial relacionado ao trabalho';
+  | 'Psicossocial relacionado ao trabalho'
+  | 'Perigo';
+
+/** Quantitative measurement of an agent (riscos.medicao). */
+export interface LegacyMedicao {
+  agente?: string;
+  /** Methodology, e.g. "NHO-01 dosimetria". */
+  tecnica?: string;
+  equipamento?: string;
+  /** ISO date */
+  data?: string;
+  resultado?: string;
+  limite?: string;
+  unidade?: string;
+}
 
 export interface LegacyRisco {
   /** Ghe.nome */
@@ -87,6 +120,65 @@ export interface LegacyRisco {
   prazo?: string;
   /** 'Pendente' | 'Em andamento' | 'Concluído' */
   status?: string;
+  /** eSocial Tabela 24, e.g. '01.01.021'. */
+  codEsocial?: string;
+  meioPropagacao?: string;
+  /** 'Qualitativa' (default) | 'Quantitativa' */
+  tecnicaAnalise?: string;
+  nivelExposicao?: string;
+  /** Existing controls split; when all empty use `controles` as general text. */
+  controlesAdm?: string;
+  controlesEpc?: string;
+  controlesEpi?: string;
+  indicadoresSaude?: string;
+  /** Action plan priority. */
+  prioridade?: 'A' | 'B' | 'C' | 'D' | '';
+  recursos?: string;
+  onde?: string;
+  formaAfericao?: string;
+  /** 'Habitual e permanente' | 'Intermitente' | 'Eventual' */
+  habitualidade?: string;
+  /** null = não avaliado */
+  epcEficaz?: boolean | null;
+  epiEficaz?: boolean | null;
+  /** e.g. 'Anexo 1' */
+  nr15Anexo?: string;
+  /** 'Mínimo' | 'Médio' | 'Máximo' | '' */
+  grauInsalubridade?: string;
+  nr16Anexo?: string;
+  /** Decreto 3.048 Anexo IV code, e.g. '2.0.1'. */
+  anexoIvCodigo?: string;
+  /** 15 | 20 | 25 | null */
+  aposentadoriaAnos?: number | null;
+  medicao?: LegacyMedicao | null;
+}
+
+/** Document revision row (doc_revisoes). */
+export interface LegacyRevisao {
+  /** 'pgr' | 'pcmso' | 'ltcat' | 'nr1' */
+  documento?: string;
+  /** e.g. '001' */
+  numero?: string;
+  /** ISO date */
+  data?: string;
+  itens?: string;
+}
+
+/** EPI record (epis). */
+export interface LegacyEpi {
+  /** Ghe.nome */
+  ghe?: string;
+  /** Funcao.nome */
+  funcao?: string;
+  nome?: string;
+  ca?: string;
+  /** ISO date */
+  validadeCa?: string;
+  /** undefined = não avaliado */
+  eficaz?: boolean;
+  /** Catalog key in docs-assets/epi (e.g. 'luva', 'pff2', 'bota') or ''. */
+  imagem?: string;
+  status?: 'existente' | 'recomendado';
 }
 
 export interface LegacyAgenda {
@@ -112,6 +204,10 @@ export interface LegacyProject {
   ghe: LegacyGhe[];
   riscos: LegacyRisco[];
   agenda: LegacyAgenda[];
+  /** Empty/absent → generators print revision 001 with dataElaboracao. */
+  revisoes?: LegacyRevisao[];
+  /** Empty/absent → generators keep the regex/catalog behaviour. */
+  epis?: LegacyEpi[];
 }
 
 /** 'Conforme' | 'Não conforme' | 'Não se aplica' | 'Pendente' */

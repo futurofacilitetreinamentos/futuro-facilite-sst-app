@@ -14,7 +14,7 @@ import EquipePage from './pages/EquipePage'
 import ImportarPage from './pages/ImportarPage'
 import { InspecaoForm, InspecaoList } from './pages/InspecaoPage'
 import Login from './pages/Login'
-import { FuncoesPage, GhePage, RiscosPage, SetoresPage } from './pages/TecnicoPages'
+import { EpisPage, FuncoesPage, GhePage, RiscosPage, SetoresPage } from './pages/TecnicoPages'
 
 /** Bloqueia telas que dependem de um condomínio cadastrado. */
 function CondoGate({ children }: { children: ReactNode }) {
@@ -58,6 +58,7 @@ function Private() {
           <Route path="funcoes" element={g(<FuncoesPage />)} />
           <Route path="ghe" element={g(<GhePage />)} />
           <Route path="riscos" element={g(<RiscosPage />)} />
+          <Route path="epis" element={g(<EpisPage />)} />
           <Route path="plano" element={g(<PlanoPage />)} />
           <Route path="pgr" element={g(<PgrPage />)} />
           <Route path="drps" element={g(<DrpsPage />)} />

@@ -15,6 +15,7 @@ export const NAV: { group: string; items: { to: string; label: string; needsCond
     { to: '/funcoes', label: '👷 Funções', needsCondo: true },
     { to: '/ghe', label: '🧩 GHE', needsCondo: true },
     { to: '/riscos', label: '⚠️ Inventário de riscos', needsCondo: true },
+    { to: '/epis', label: '🦺 EPIs', needsCondo: true },
     { to: '/plano', label: '✅ Plano de ação', needsCondo: true },
   ] },
   { group: 'Documentos', items: [
