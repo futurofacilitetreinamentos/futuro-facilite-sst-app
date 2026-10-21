@@ -34,6 +34,10 @@ interface RtInfo {
 function rtInfo(ctx: DocContext, plan: LtcatPlan): RtInfo {
   const e = emp(ctx.project);
   const rt = plan.rt || { tipo: 'engenheiro', nome: plan.eng.nome, conselho: 'CREA', registro: plan.eng.crea };
+  if (e.ltcatNome) {
+    const padraoFuncao = rt.tipo === 'medico' ? 'Médico(a) do Trabalho' : 'Engenheiro(a) de Segurança do Trabalho';
+    return { nome: rt.nome, funcao: (e.ltcatFuncao || '').trim() || padraoFuncao, conselho: rt.conselho, registro: rt.registro };
+  }
   if (rt.tipo === 'medico') {
     const m = findEquipe(ctx, 'medico', e.medicoId, e.medicoTrabalho);
     return { nome: rt.nome, funcao: (m?.funcao || '').trim() || 'Médico(a) do Trabalho', conselho: 'CRM', registro: rt.registro };

@@ -25,6 +25,22 @@ export interface LegacyEmpresa {
   regSst?: string;
   /** Equipe id of the selected SST professional. */
   respSstId?: string;
+  /** Profissional que "auxiliou na elaboração" (PGR). */
+  auxSst?: string;
+  funcaoAuxSst?: string;
+  regAuxSst?: string;
+  /** Responsável pelo relatório de inspeção (vazio = respSst). */
+  inspRt?: string;
+  funcaoInspRt?: string;
+  regInspRt?: string;
+  /** Responsável pelo NR-1 / DRPS (vazio = respSst). */
+  nr1Rt?: string;
+  funcaoNr1Rt?: string;
+  regNr1Rt?: string;
+  /** Quem assina o LTCAT (médico ou engenheiro); vazio = regra antiga por ltcatRt. */
+  ltcatNome?: string;
+  ltcatFuncao?: string;
+  ltcatRegistro?: string;
   medicoTrabalho?: string;
   /** "registro / rqe" as composed by legacy applyEquipePick. */
   crmMedico?: string;

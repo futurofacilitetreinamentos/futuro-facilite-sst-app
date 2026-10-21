@@ -271,6 +271,11 @@ input[type='checkbox'], input[type='radio'] { width: auto; margin: 0; box-shadow
 .check-list label { display: flex; gap: 8px; align-items: center; font-weight: 400; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
 .check-list label:has(input:checked) { border-color: var(--p); background: var(--p-50); }
 
+.padrao-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.check-list label .field-hint { margin-top: 2px; }
+.field-hint { display: block; margin-top: 5px; font-size: 12px; font-weight: 400; color: var(--muted); }
+.field-hint.warn { color: var(--warn); }
+
 .collapsible { grid-column: 1 / -1; border: 1px solid var(--line); border-radius: var(--radius); background: var(--soft); }
 .collapsible summary {
   cursor: pointer;

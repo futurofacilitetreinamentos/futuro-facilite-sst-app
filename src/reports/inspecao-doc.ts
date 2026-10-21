@@ -17,6 +17,11 @@ export function buildInspecao(ctx: DocContext, d: LegacyInspection): string {
     dataElaboracao: d.dataVisita || '',
     numTrabalhadores: d.totalEmpregados || '0',
     atividadeEmpresa: d.objetivo || '',
+    // quem assina o relatório (escolha do condomínio ou padrão da equipe) e a cidade vêm do cadastro
+    respSst: ctx.project.empresa?.inspRt || ctx.project.empresa?.respSst || '',
+    funcaoRespSst: (ctx.project.empresa?.inspRt ? ctx.project.empresa?.funcaoInspRt : ctx.project.empresa?.funcaoRespSst) || '',
+    regSst: (ctx.project.empresa?.inspRt ? ctx.project.empresa?.regInspRt : ctx.project.empresa?.regSst) || '',
+    cidadeUf: ctx.project.empresa?.cidadeUf || '',
   };
   const items = checklistValues(d);
   const c = items.filter((i) => i.status === 'Conforme').length;
@@ -31,15 +36,16 @@ export function buildInspecao(ctx: DocContext, d: LegacyInspection): string {
     cover(a, e, {
       badge: 'SST',
       title: 'Relatório de<br>inspeção de segurança<br>do trabalho',
-      respNome: d.tecnico || d.assinaturaTecnico,
-      respFuncao: 'Técnico responsável pela inspeção',
-      regLabel: 'Relatório',
-      respReg: d.numero,
+      // responsável técnico SST do condomínio; sem ele, o técnico digitado na inspeção
+      respNome: e.respSst || d.tecnico || d.assinaturaTecnico,
+      respFuncao: e.respSst ? e.funcaoRespSst || 'Técnico de Segurança do Trabalho' : 'Técnico responsável pela inspeção',
+      regLabel: e.respSst && e.regSst ? 'MTE' : 'Relatório',
+      respReg: e.respSst && e.regSst ? e.regSst : d.numero,
     }),
   );
 
   b.section(
-    `${b.h1('1', 'Identificação e resumo executivo')}<table class="pgr-table"><tbody><tr><th style="width:24%">Condomínio</th><td colspan="3">${esc(d.condominio || DASH)}</td></tr><tr><th>CNPJ</th><td>${esc(d.cnpj || DASH)}</td><th style="width:18%">Relatório</th><td>${esc(d.numero || DASH)}</td></tr><tr><th>Endereço</th><td colspan="3">${esc(d.endereco || DASH)}</td></tr><tr><th>Síndico / responsável</th><td>${esc(d.sindica || DASH)}</td><th>Data da inspeção</th><td>${fmtH(d.dataVisita)}</td></tr><tr><th>Técnico responsável</th><td colspan="3">${esc(d.tecnico || d.assinaturaTecnico || DASH)}</td></tr><tr><th>Contato</th><td colspan="3">${esc(d.telefone || DASH)}${d.emailCondominio ? ' · ' + esc(d.emailCondominio) : ''}</td></tr><tr><th>Colaboradores</th><td colspan="3">Total ${esc(d.totalEmpregados || '0')} · Próprios ${esc(d.proprios || '0')} · Terceirizados ${esc(d.terceirizados || '0')}</td></tr></tbody></table>${b.sub('Resumo da avaliação')}<div class="pgr-kpi"><span><b>${c}</b> conformes</span><span><b>${nc}</b> não conformes</span><span><b>${na}</b> não se aplica</span><span><b>${pend}</b> pendentes</span><span><b>${pct}%</b> conformidade</span></div>${b.sub('Objetivo')}<p class="pgr-text">${esc(d.objetivo || DASH)}</p>${b.sub('Funções e jornadas')}<p class="pgr-text"><b>Funções:</b> ${esc(d.funcoes || DASH)}<br><b>Jornadas:</b> ${esc(d.jornadas || DASH)}</p>`,
+    `${b.h1('1', 'Identificação e resumo executivo')}<table class="pgr-table"><tbody><tr><th style="width:24%">Condomínio</th><td colspan="3">${esc(d.condominio || DASH)}</td></tr><tr><th>CNPJ</th><td>${esc(d.cnpj || DASH)}</td><th style="width:18%">Relatório</th><td>${esc(d.numero || DASH)}</td></tr><tr><th>Endereço</th><td colspan="3">${esc(d.endereco || DASH)}</td></tr><tr><th>Síndico / responsável</th><td>${esc(d.sindica || DASH)}</td><th>Data da inspeção</th><td>${fmtH(d.dataVisita)}</td></tr><tr><th>Técnico responsável</th><td colspan="3">${esc(e.respSst || d.tecnico || d.assinaturaTecnico || DASH)}${e.respSst && e.regSst ? ` · Nº do registro MTE: ${esc(e.regSst)}` : ''}</td></tr><tr><th>Contato</th><td colspan="3">${esc(d.telefone || DASH)}${d.emailCondominio ? ' · ' + esc(d.emailCondominio) : ''}</td></tr><tr><th>Colaboradores</th><td colspan="3">Total ${esc(d.totalEmpregados || '0')} · Próprios ${esc(d.proprios || '0')} · Terceirizados ${esc(d.terceirizados || '0')}</td></tr></tbody></table>${b.sub('Resumo da avaliação')}<div class="pgr-kpi"><span><b>${c}</b> conformes</span><span><b>${nc}</b> não conformes</span><span><b>${na}</b> não se aplica</span><span><b>${pend}</b> pendentes</span><span><b>${pct}%</b> conformidade</span></div>${b.sub('Objetivo')}<p class="pgr-text">${esc(d.objetivo || DASH)}</p>${b.sub('Funções e jornadas')}<p class="pgr-text"><b>Funções:</b> ${esc(d.funcoes || DASH)}<br><b>Jornadas:</b> ${esc(d.jornadas || DASH)}</p>`,
   );
   b.section(
     `${b.h1('2', 'Checklist geral')}<table class="pgr-table compact"><colgroup><col style="width:7%"><col style="width:51%"><col style="width:16%"><col style="width:12%"><col style="width:14%"></colgroup><thead><tr><th>Nº</th><th>Item avaliado</th><th>Situação</th><th>Risco</th><th>Prazo</th></tr></thead><tbody>${
@@ -81,7 +87,9 @@ export function buildInspecao(ctx: DocContext, d: LegacyInspection): string {
     }`,
   );
   b.section(
-    `${b.h1('6', 'Conclusão técnica e ciência')}${b.sub('Conclusão')}<p class="pgr-text">${esc(d.conclusao || 'Não informada')}</p>${b.sub('Recomendações gerais')}<p class="pgr-text">${esc(d.recomendacoes || 'Não informadas')}</p><p class="pgr-text">Este relatório registra as condições observadas na data da inspeção. As recomendações devem ser analisadas e implementadas conforme a prioridade dos riscos e a legislação aplicável.</p><div class="pg-sign-grid" style="margin-top:22mm"><div class="pg-sign-block">${esc(d.assinaturaSindica || d.sindica || 'Responsável pelo condomínio')}<br>Responsável pelo condomínio</div><div class="pg-sign-block">${esc(d.assinaturaTecnico || d.tecnico || 'Responsável pela inspeção')}<br>Responsável pela inspeção</div></div>`,
+    `${b.h1('6', 'Conclusão técnica e ciência')}${b.sub('Conclusão')}<p class="pgr-text">${esc(d.conclusao || 'Não informada')}</p>${b.sub('Recomendações gerais')}<p class="pgr-text">${esc(d.recomendacoes || 'Não informadas')}</p><p class="pgr-text">Este relatório registra as condições observadas na data da inspeção. As recomendações devem ser analisadas e implementadas conforme a prioridade dos riscos e a legislação aplicável.</p><div class="pg-sign-grid" style="margin-top:22mm"><div class="pg-sign-block">${esc(d.assinaturaSindica || d.sindica || 'Responsável pelo condomínio')}<br>Responsável pelo condomínio</div>${e.respSst
+      ? `<div class="pg-sign-block"><b>Responsável Técnico:</b> ${esc(e.respSst)}<br>${esc(e.funcaoRespSst || 'Técnico de Segurança do Trabalho')}${e.regSst ? `<br><b>Nº do registro MTE:</b> ${esc(e.regSst)}` : ''}</div>`
+      : `<div class="pg-sign-block">${esc(d.assinaturaTecnico || d.tecnico || 'Responsável pela inspeção')}<br>Responsável pela inspeção</div>`}</div>`,
   );
   return b.render(a.logo);
 }

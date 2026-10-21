@@ -624,6 +624,11 @@ export function ltcatGhes(p: LegacyProject): LtcatGhe[] {
 
 export function ltcatRt(p: LegacyProject): LtcatRt {
   const e = p.empresa || {};
+  // assinante escolhido para o LTCAT (condomínio ou padrão da equipe)
+  if (e.ltcatNome) {
+    const tipo = e.ltcatRt === 'medico' ? 'medico' : 'engenheiro';
+    return { tipo, nome: s(e.ltcatNome), conselho: tipo === 'medico' ? 'CRM' : 'CREA', registro: s(e.ltcatRegistro) };
+  }
   if (e.ltcatRt === 'medico') return { tipo: 'medico', nome: s(e.medicoTrabalho), conselho: 'CRM', registro: s(e.crmMedico) };
   return { tipo: 'engenheiro', nome: s(e.engSeguranca), conselho: 'CREA', registro: s(e.creaEng) };
 }

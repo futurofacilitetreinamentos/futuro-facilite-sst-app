@@ -25,7 +25,9 @@ import {
 export function buildNR1(ctx: DocContext): string {
   const p = ctx.project;
   const a = assets(ctx);
-  const e = emp(p);
+  // o NR-1 / DRPS tem assinante próprio (escolha do condomínio ou padrão da equipe)
+  const e0 = emp(p);
+  const e = e0.nr1Rt ? { ...e0, respSst: e0.nr1Rt, funcaoRespSst: e0.funcaoNr1Rt, regSst: e0.regNr1Rt } : e0;
   const T = NR1_TEXTS;
   const dr = scoreDrps(ctx.drps || []);
   const topics = drpsTopics(dr);

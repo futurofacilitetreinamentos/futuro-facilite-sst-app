@@ -9,6 +9,7 @@ import {
 import type { ChecklistItem, Inspecao, ItemStatus } from '../lib/types'
 import { CHECKLIST, checklistItems } from '../reports/checklist'
 import { buildInspecao } from '../reports'
+import { signatario } from '../lib/signatarios'
 import { useCondo } from '../state/CondoProvider'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -122,8 +123,9 @@ export function InspecaoForm() {
     }
     // Iniciada pela agenda: usa a data e o técnico agendados
     const ag = agenda.find((a) => a.id === params.get('agenda'))
-    const resp = equipe.find((m) => m.id === condo.resp_sst_id)
-    const tecnico = ag?.tecnico || resp?.nome || profile?.nome || ''
+    const resp = signatario('inspecao', condo, equipe).membro
+    // o responsável técnico SST do condomínio responde pela inspeção
+    const tecnico = resp?.nome || ag?.tecnico || profile?.nome || ''
     setD({
       condominio_id: condo.id,
       agendamento_id: ag?.id ?? null,

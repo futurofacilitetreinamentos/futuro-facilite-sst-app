@@ -23,6 +23,8 @@ export interface Equipe {
   rqe: string
   telefone: string
   email: string
+  /** Documentos que assina por padrão (migração 0003); ver lib/signatarios.ts */
+  padrao?: string[]
 }
 
 export interface Condominio {
@@ -40,6 +42,11 @@ export interface Condominio {
   data_elaboracao: string | null
   atividade_empresa: string
   resp_sst_id: string | null
+  /** Assinantes escolhidos para este condomínio (migração 0003); vazio = padrão da equipe */
+  aux_sst_id: string | null
+  inspecao_rt_id: string | null
+  nr1_rt_id: string | null
+  ltcat_rt_id: string | null
   medico_id: string | null
   engenheiro_id: string | null
   drps_token: string

@@ -189,7 +189,11 @@ export function buildPGR(ctx: DocContext): string {
       num: '13',
       titulo: 'Responsabilidade técnica',
       texto: T.responsabilidade,
-      signers: [{ label: 'Responsável Técnico:', nome: e.respSst, funcao: e.funcaoRespSst || 'Técnico de Segurança do Trabalho', regLabel: 'Nº do registro MTE:', reg: e.regSst }],
+      signers: [
+        { label: 'Responsável Técnico:', nome: e.respSst, funcao: e.funcaoRespSst || 'Técnico de Segurança do Trabalho', regLabel: 'Nº do registro MTE:', reg: e.regSst },
+        // bloco "Auxiliou na elaboração", como no PGR de referência (só quando escolhido no cadastro)
+        ...(e.auxSst ? [{ label: 'Auxiliou na elaboração:', nome: e.auxSst, funcao: e.funcaoAuxSst || 'Técnico de Segurança do Trabalho', regLabel: 'Nº do registro MTE:', reg: e.regAuxSst }] : []),
+      ],
     }),
   );
 

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { DocContext, LegacyInspection, LegacyMedicao, LegacyProject } from '../reports/types'
 import { must, supabase } from './supabase'
 import { signedUrls } from './db'
+import { signatario } from './signatarios'
 import type {
   Agendamento, Condominio, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Medicao, Risco, Setor,
 } from './types'
@@ -68,9 +69,15 @@ export function toLegacyProject(b: CondoBundle): LegacyProject {
   const setorNome = (id: string | null) => b.setores.find((x) => x.id === id)?.nome ?? ''
   const funcaoNome = (id: string | null) => b.funcoes.find((x) => x.id === id)?.nome ?? ''
   const gheNome = (id: string | null) => b.ghes.find((x) => x.id === id)?.nome ?? ''
-  const sst = equipe.find((m) => m.id === c.resp_sst_id)
-  const med = equipe.find((m) => m.id === c.medico_id)
+  // quem assina cada documento: escolha do condomínio, senão o padrão da equipe
+  const sst = signatario('pgr', c, equipe).membro
+  const aux = signatario('pgr_aux', c, equipe).membro
+  const insp = signatario('inspecao', c, equipe).membro
+  const nr1 = signatario('nr1', c, equipe).membro
+  const med = signatario('pcmso', c, equipe).membro
+  const lt = signatario('ltcat', c, equipe).membro
   const eng = equipe.find((m) => m.id === c.engenheiro_id)
+  const funcaoSst = (m: Equipe | null) => (m ? m.funcao || 'Técnico de Segurança do Trabalho' : '')
   return {
     id: c.id,
     drpsToken: c.drps_token,
@@ -89,9 +96,21 @@ export function toLegacyProject(b: CondoBundle): LegacyProject {
       dataElaboracao: s(c.data_elaboracao),
       atividadeEmpresa: c.atividade_empresa,
       respSst: sst?.nome ?? '',
-      funcaoRespSst: sst ? sst.funcao || 'Técnico de Segurança do Trabalho' : '',
+      funcaoRespSst: funcaoSst(sst),
       regSst: sst?.registro ?? '',
       respSstId: sst?.id ?? '',
+      auxSst: aux?.nome ?? '',
+      funcaoAuxSst: funcaoSst(aux),
+      regAuxSst: aux?.registro ?? '',
+      inspRt: insp?.nome ?? '',
+      funcaoInspRt: funcaoSst(insp),
+      regInspRt: insp?.registro ?? '',
+      nr1Rt: nr1?.nome ?? '',
+      funcaoNr1Rt: funcaoSst(nr1),
+      regNr1Rt: nr1?.registro ?? '',
+      ltcatNome: lt?.nome ?? '',
+      ltcatFuncao: lt?.funcao ?? '',
+      ltcatRegistro: lt ? [lt.registro, lt.tipo === 'medico' ? lt.rqe : ''].filter(Boolean).join(' / ') : '',
       medicoTrabalho: med?.nome ?? '',
       crmMedico: med ? [med.registro, med.rqe].filter(Boolean).join(' / ') : '',
       medicoId: med?.id ?? '',
@@ -100,7 +119,7 @@ export function toLegacyProject(b: CondoBundle): LegacyProject {
       engId: eng?.id ?? '',
       cep: s(c.cep),
       cidadeUf: s(c.cidade_uf),
-      ltcatRt: c.ltcat_rt === 'medico' ? 'medico' : 'engenheiro',
+      ltcatRt: lt ? (lt.tipo === 'medico' ? 'medico' : 'engenheiro') : c.ltcat_rt === 'medico' ? 'medico' : 'engenheiro',
     },
     setores: b.setores.map((x) => ({ nome: x.nome, ambiente: x.ambiente, descricao: x.descricao })),
     funcoes: b.funcoes.map((x) => ({

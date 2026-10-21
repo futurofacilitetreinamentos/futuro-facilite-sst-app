@@ -4,6 +4,7 @@ import { CrudSection } from '../components/CrudSection'
 import { ErrorBox, Field, PanelHead, fmtDate, maskCep, maskCnpj, type FieldDef } from '../components/ui'
 import { useChildren, useEquipe, useRemove, useSave } from '../lib/db'
 import { DOCUMENTOS_REVISAO, type Condominio, type DocRevisao, type EquipeTipo } from '../lib/types'
+import { DOCS_ASSINATURA, padraoDe, signatario } from '../lib/signatarios'
 import { useCondo } from '../state/CondoProvider'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -16,8 +17,10 @@ const blank = (): Form => ({
   razao_social: '', nome_fantasia: '', cnpj: '', cnae: '', grau_risco: '', num_trabalhadores: '',
   endereco: '', responsavel_empresa: '', contato_empresa: '', email_empresa: '',
   data_elaboracao: new Date().toISOString().slice(0, 10), atividade_empresa: 'Atividades de administração de condomínios prediais',
-  resp_sst_id: null, medico_id: null, engenheiro_id: null,
-  cep: '', cidade_uf: 'Brasília-DF', ltcat_rt: 'engenheiro',
+  // assinantes vazios = usa o padrão marcado na Equipe técnica (lib/signatarios.ts)
+  resp_sst_id: null, aux_sst_id: null, inspecao_rt_id: null, nr1_rt_id: null, medico_id: null, ltcat_rt_id: null,
+  engenheiro_id: null,
+  cep: '', cidade_uf: 'Brasília-DF', ltcat_rt: 'medico',
 })
 
 const FIELDS: FieldDef<Form>[] = [
@@ -37,11 +40,7 @@ const FIELDS: FieldDef<Form>[] = [
   { key: 'atividade_empresa', label: 'Atividade', span: true },
 ]
 
-const RESP: { key: 'resp_sst_id' | 'medico_id' | 'engenheiro_id'; tipo: EquipeTipo; label: string }[] = [
-  { key: 'resp_sst_id', tipo: 'sst', label: 'Responsável técnico SST' },
-  { key: 'medico_id', tipo: 'medico', label: 'Médico do trabalho (PCMSO)' },
-  { key: 'engenheiro_id', tipo: 'engenheiro', label: 'Engenheiro de segurança (LTCAT)' },
-]
+const TIPO_LABEL: Record<EquipeTipo, string> = { sst: 'Segurança do trabalho', medico: 'Médico do trabalho', engenheiro: 'Engenheiro de segurança' }
 
 export default function CondominioPage() {
   const { condo, setCondoId } = useCondo()
@@ -73,6 +72,9 @@ export default function CondominioPage() {
       num_trabalhadores: num_trabalhadores === '' ? null : Number(num_trabalhadores),
       data_elaboracao: rest.data_elaboracao || null,
     }
+    // mantém o campo antigo ltcat_rt coerente com quem foi escolhido para o LTCAT
+    const lt = equipe.find((m) => m.id === rest.ltcat_rt_id)
+    if (lt) row.ltcat_rt = lt.tipo === 'medico' ? 'medico' : 'engenheiro'
     const saved = await save.mutateAsync(row)
     setCondoId(saved.id)
     setParams({})
@@ -104,33 +106,35 @@ export default function CondominioPage() {
             <Field key={f.key} def={f} value={form[f.key]} onChange={(v) => set(f.key, v)} />
           ))}
         </div>
-        <h3 style={{ marginTop: 20 }}>Profissionais responsáveis</h3>
-        <div className="form-grid three">
-          {RESP.map((r) => {
-            const opts = equipe.filter((m) => m.tipo === r.tipo)
+        <h3 style={{ marginTop: 24 }}>Quem assina os documentos</h3>
+        <p className="entity-meta" style={{ margin: '0 0 12px' }}>
+          Deixe em “Padrão” para usar quem está marcado na <a href="#/equipe">Equipe técnica</a>. Escolha outro profissional só
+          quando este condomínio for assinado por outra pessoa.
+        </p>
+        <div className="form-grid two">
+          {DOCS_ASSINATURA.map((d) => {
+            const padrao = padraoDe(d.doc, equipe)
+            const { num_trabalhadores: _n, ...semNum } = form
+            void _n
+            const efetivo = signatario(d.doc, semNum, equipe)
+            const opts = equipe.filter((m) => d.tipos.includes(m.tipo))
             return (
-              <label key={r.key}>
-                {r.label}
-                <select value={form[r.key] ?? ''} onChange={(e) => set(r.key, e.target.value || null)}>
-                  <option value="">— nenhum —</option>
+              <label key={d.doc}>
+                {d.label}
+                <select value={(form[d.campo] as string | null) ?? ''} onChange={(e) => set(d.campo, e.target.value || null)}>
+                  <option value="">{padrao ? `Padrão: ${padrao.nome}` : '— sem padrão definido —'}</option>
                   {opts.map((m) => (
-                    <option key={m.id} value={m.id}>{m.nome}{m.registro ? ` (${m.registro})` : ''}</option>
+                    <option key={m.id} value={m.id}>
+                      {m.nome}{m.registro ? ` (${m.registro})` : ''}{d.tipos.length > 1 ? ` · ${TIPO_LABEL[m.tipo]}` : ''}
+                    </option>
                   ))}
                 </select>
+                {!efetivo.membro && <span className="field-hint warn">Ninguém assina este documento. Marque um padrão na Equipe técnica.</span>}
+                {efetivo.origem === 'anterior' && <span className="field-hint">Assina: {efetivo.membro?.nome} (cadastro anterior)</span>}
               </label>
             )
           })}
-          <label>
-            Responsável pelo LTCAT
-            <select value={form.ltcat_rt ?? 'engenheiro'} onChange={(e) => set('ltcat_rt', e.target.value)}>
-              <option value="engenheiro">Engenheiro de segurança (CREA)</option>
-              <option value="medico">Médico do trabalho (CRM)</option>
-            </select>
-          </label>
         </div>
-        {equipe.length === 0 && (
-          <p className="entity-meta">Cadastre os profissionais em <a href="#/equipe">Equipe técnica</a>.</p>
-        )}
       </form>
       {!novo && condo && <RevisoesSection condoId={condo.id} />}
     </div>
