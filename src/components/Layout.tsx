@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
-  BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileText, HardHat, House, KeyRound,
+  BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileText, HardHat, History, House, KeyRound,
   Layers, ListChecks, LogOut, Menu, Plus, ShieldCheck, Sparkles, Stethoscope, TriangleAlert, Upload, UserRound, Users, X,
   type LucideIcon,
 } from 'lucide-react'
@@ -32,6 +32,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { to: '/pcmso', label: 'PCMSO', icon: Stethoscope, needsCondo: true },
     { to: '/ltcat', label: 'LTCAT', icon: Factory, needsCondo: true },
     { to: '/laudos', label: 'Laudos', icon: FileText, needsCondo: true },
+    { to: '/anteriores', label: 'Laudos anteriores', icon: History, needsCondo: true },
   ] },
   { group: 'Sistema', items: [
     { to: '/equipe', label: 'Equipe técnica', icon: UserRound },

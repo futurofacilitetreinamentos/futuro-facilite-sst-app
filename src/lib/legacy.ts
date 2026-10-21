@@ -6,7 +6,7 @@ import { must, supabase } from './supabase'
 import { signedUrls } from './db'
 import { signatario } from './signatarios'
 import type {
-  Agendamento, Condominio, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Medicao, Risco, Setor,
+  Agendamento, Condominio, DocAnterior, DocRevisao, MedicaoAnterior, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Medicao, Risco, Setor,
 } from './types'
 
 const s = (v: unknown) => (v == null ? '' : String(v))
@@ -34,6 +34,19 @@ export interface CondoBundle {
   equipe: Equipe[]
   revisoes: DocRevisao[]
   epis: Epi[]
+  docsAnteriores: DocAnterior[]
+  medicoesAnteriores: MedicaoAnterior[]
+}
+
+/** Medição aproveitada de laudo anterior, com a fonte para citar no documento. */
+function medicaoAnterior(m: MedicaoAnterior, docs: DocAnterior[]): LegacyMedicao {
+  const doc = docs.find((d) => d.id === m.doc_id)
+  const quando = doc?.data_emissao ? ` de ${doc.data_emissao.slice(8, 10)}/${doc.data_emissao.slice(5, 7)}/${doc.data_emissao.slice(0, 4)}` : ''
+  const fonte = doc ? `${doc.empresa || 'laudo anterior'}${doc.tipo ? `, ${doc.tipo.toUpperCase()}` : ''}${quando}` : 'laudo anterior'
+  return {
+    agente: m.agente, tecnica: m.tecnica, equipamento: m.equipamento, data: s(m.data).slice(0, 10),
+    resultado: m.resultado, limite: m.limite, unidade: m.unidade, fonte,
+  }
 }
 
 export async function fetchBundle(condoId: string): Promise<CondoBundle> {
@@ -43,10 +56,10 @@ export async function fetchBundle(condoId: string): Promise<CondoBundle> {
   // Tabelas do 0002: se a migração ainda não foi aplicada, os documentos saem sem elas.
   const optional = <T>(table: string) =>
     supabase.from(table).select('*').eq('condominio_id', condoId).order('created_at').then((r) => {
-      if (r.error) { console.warn(`Tabela ${table} indisponível (migração 0002 aplicada?):`, r.error.message); return [] as T[] }
+      if (r.error) { console.warn(`Tabela ${table} indisponível (migrações 0002/0004 aplicadas?):`, r.error.message); return [] as T[] }
       return (r.data ?? []) as T[]
     })
-  const [condo, setores, funcoes, ghesRaw, riscos, agenda, inspecoes, drps, equipe, revisoes, epis] = await Promise.all([
+  const [condo, setores, funcoes, ghesRaw, riscos, agenda, inspecoes, drps, equipe, revisoes, epis, docsAnteriores, medicoesAnteriores] = await Promise.all([
     supabase.from('condominios').select('*').eq('id', condoId).single().then((r) => must(r) as Condominio),
     by<Setor>('setores'),
     by<Funcao>('funcoes'),
@@ -59,9 +72,11 @@ export async function fetchBundle(condoId: string): Promise<CondoBundle> {
     supabase.from('equipe').select('*').order('nome').then((r) => must(r) as Equipe[]),
     optional<DocRevisao>('doc_revisoes'),
     optional<Epi>('epis'),
+    optional<DocAnterior>('docs_anteriores'),
+    optional<MedicaoAnterior>('medicoes_anteriores'),
   ])
   const ghes = ghesRaw.map(({ ghe_funcoes, ...g }) => ({ ...g, funcao_ids: ghe_funcoes.map((x) => x.funcao_id) }))
-  return { condo, setores, funcoes, ghes, riscos, agenda, inspecoes, drps, equipe, revisoes, epis }
+  return { condo, setores, funcoes, ghes, riscos, agenda, inspecoes, drps, equipe, revisoes, epis, docsAnteriores, medicoesAnteriores }
 }
 
 export function toLegacyProject(b: CondoBundle): LegacyProject {
@@ -148,7 +163,12 @@ export function toLegacyProject(b: CondoBundle): LegacyProject {
       recursos: s(r.recursos), onde: s(r.onde), formaAfericao: s(r.forma_afericao), habitualidade: s(r.habitualidade),
       epcEficaz: bool(r.epc_eficaz), epiEficaz: bool(r.epi_eficaz),
       nr15Anexo: s(r.nr15_anexo), grauInsalubridade: s(r.grau_insalubridade), nr16Anexo: s(r.nr16_anexo),
-      anexoIvCodigo: s(r.anexo_iv_codigo), aposentadoriaAnos: int(r.aposentadoria_anos), medicao: medicao(r.medicao),
+      anexoIvCodigo: s(r.anexo_iv_codigo), aposentadoriaAnos: int(r.aposentadoria_anos),
+      // medição própria do risco; sem ela, a medição aproveitada de laudo anterior ligada a ele
+      medicao: medicao(r.medicao) ?? (() => {
+        const ant = b.medicoesAnteriores.find((m) => m.risco_id === r.id)
+        return ant ? medicaoAnterior(ant, b.docsAnteriores) : null
+      })(),
     })),
     agenda: b.agenda.map((a) => ({
       id: a.id, data: a.data, hora: s(a.hora).slice(0, 5), tecnico: a.tecnico, obs: a.obs, status: a.status,

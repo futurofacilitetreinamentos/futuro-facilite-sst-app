@@ -133,11 +133,17 @@ function medicoesTable(plan: LtcatPlan): string {
         .map((a) => {
           const m = a.medicao!;
           const un = (m.unidade || '').trim();
-          return `<tr><td>${esc(g.titulo)}</td><td>${cell(m.agente || a.agente)}</td><td>${cell(m.tecnica)}</td><td>${cell(m.equipamento)}</td><td>${fmtH(m.data)}</td><td>${m.resultado ? esc(m.resultado + (un ? ' ' + un : '')) : DASH}</td><td>${m.limite ? esc(m.limite + (un ? ' ' + un : '')) : DASH}</td></tr>`;
+          // medição aproveitada de laudo anterior: cita a origem logo abaixo da metodologia
+          const metodo = m.fonte ? `${cell(m.tecnica)}<br><i>Fonte: ${esc(m.fonte)}</i>` : cell(m.tecnica);
+          return `<tr><td>${esc(g.titulo)}</td><td>${cell(m.agente || a.agente)}</td><td>${metodo}</td><td>${cell(m.equipamento)}</td><td>${fmtH(m.data)}</td><td>${m.resultado ? esc(m.resultado + (un ? ' ' + un : '')) : DASH}</td><td>${m.limite ? esc(m.limite + (un ? ' ' + un : '')) : DASH}</td></tr>`;
         }),
     )
     .join('');
-  return `${caption('Resultados das avaliações quantitativas')}<table class="pgr-table compact lt-med"><colgroup><col style="width:16%"><col style="width:16%"><col style="width:17%"><col style="width:17%"><col style="width:10%"><col style="width:12%"><col style="width:12%"></colgroup><thead><tr><th>GHE</th><th>Agente</th><th>Metodologia</th><th>Equipamento</th><th>Data</th><th>Resultado</th><th>Limite de tolerância</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const temFonte = (plan.ghes || []).some((g) => g.agentes.some((a) => a.medicao?.fonte));
+  const nota = temFonte
+    ? `<p class="pgr-text">As medições com indicação de fonte foram realizadas em avaliações anteriores e aproveitadas por permanecerem representativas das condições de trabalho verificadas na visita técnica, devendo ser refeitas quando houver mudança no processo, nos equipamentos ou na jornada.</p>`
+    : '';
+  return `${caption('Resultados das avaliações quantitativas')}<table class="pgr-table compact lt-med"><colgroup><col style="width:16%"><col style="width:16%"><col style="width:17%"><col style="width:17%"><col style="width:10%"><col style="width:12%"><col style="width:12%"></colgroup><thead><tr><th>GHE</th><th>Agente</th><th>Metodologia</th><th>Equipamento</th><th>Data</th><th>Resultado</th><th>Limite de tolerância</th></tr></thead><tbody>${rows}</tbody></table>${nota}`;
 }
 
 // ---------------------------------------------------------------------------

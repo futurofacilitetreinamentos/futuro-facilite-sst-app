@@ -190,6 +190,50 @@ export interface DocRevisao {
   itens: string
 }
 
+export type TipoDocAnterior = 'pgr' | 'pcmso' | 'ltcat' | 'nr1' | 'outro'
+
+export const TIPOS_DOC_ANTERIOR: { value: TipoDocAnterior; label: string }[] = [
+  { value: 'pgr', label: 'PGR' },
+  { value: 'pcmso', label: 'PCMSO' },
+  { value: 'ltcat', label: 'LTCAT' },
+  { value: 'nr1', label: 'NR-1 / DRPS' },
+  { value: 'outro', label: 'Outro' },
+]
+
+/** Laudo emitido antes, normalmente por outra empresa (migração 0004). */
+export interface DocAnterior {
+  id: string
+  condominio_id: string
+  tipo: TipoDocAnterior
+  empresa: string
+  responsavel: string
+  registro: string
+  data_emissao: string | null
+  validade: string | null
+  /** caminho no bucket "fotos" */
+  arquivo: string | null
+  nome_arquivo: string
+  observacoes: string
+}
+
+/** Medição quantitativa aproveitada de um laudo anterior (migração 0004). */
+export interface MedicaoAnterior {
+  id: string
+  condominio_id: string
+  doc_id: string | null
+  risco_id: string | null
+  ghe_id: string | null
+  funcao_id: string | null
+  agente: string
+  tecnica: string
+  equipamento: string
+  data: string | null
+  resultado: string
+  limite: string
+  unidade: string
+  observacoes: string
+}
+
 export type EpiStatus = 'existente' | 'recomendado'
 
 export interface Epi {

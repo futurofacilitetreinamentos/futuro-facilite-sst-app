@@ -6,6 +6,7 @@ import Layout, { needsCondo } from './components/Layout'
 import { Loading } from './components/ui'
 import { CondoProvider, useCondo } from './state/CondoProvider'
 import AgendaPage from './pages/AgendaPage'
+import AnterioresPage from './pages/AnterioresPage'
 import CondominioPage from './pages/CondominioPage'
 import ContaPage from './pages/ContaPage'
 import Dashboard from './pages/Dashboard'
@@ -68,6 +69,7 @@ function Private() {
           <Route path="pcmso" element={g(<PcmsoPage />)} />
           <Route path="ltcat" element={g(<LtcatPage />)} />
           <Route path="laudos" element={g(<LaudosPage />)} />
+          <Route path="anteriores" element={g(<AnterioresPage />)} />
           <Route path="equipe" element={<EquipePage />} />
           <Route path="importar" element={<ImportarPage />} />
           <Route path="conta" element={<ContaPage />} />

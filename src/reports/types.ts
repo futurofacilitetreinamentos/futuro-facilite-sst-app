@@ -113,6 +113,8 @@ export interface LegacyMedicao {
   resultado?: string;
   limite?: string;
   unidade?: string;
+  /** Origem quando aproveitada de laudo anterior, ex. "Empresa X, laudo de 10/03/2025". */
+  fonte?: string;
 }
 
 export interface LegacyRisco {

@@ -1,14 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PHOTO_BUCKET, must, supabase } from './supabase'
 import type {
-  Agendamento, Condominio, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Profile, Risco, Setor,
+  Agendamento, Condominio, DocAnterior, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, MedicaoAnterior,
+  Profile, Risco, Setor,
 } from './types'
 
 // Tabelas filhas de um condomínio, todas com a coluna condominio_id
 export type ChildTable =
   | 'setores' | 'funcoes' | 'riscos' | 'agendamentos' | 'inspecoes' | 'drps_respostas' | 'doc_revisoes' | 'epis'
+  | 'docs_anteriores' | 'medicoes_anteriores'
 
 type ChildRow = {
+  docs_anteriores: DocAnterior
+  medicoes_anteriores: MedicaoAnterior
   setores: Setor
   funcoes: Funcao
   riscos: Risco
@@ -28,6 +32,8 @@ const ORDER: Record<ChildTable, { column: string; ascending: boolean }> = {
   drps_respostas: { column: 'created_at', ascending: true },
   doc_revisoes: { column: 'created_at', ascending: true },
   epis: { column: 'created_at', ascending: true },
+  docs_anteriores: { column: 'data_emissao', ascending: false },
+  medicoes_anteriores: { column: 'created_at', ascending: true },
 }
 
 // ---------------------------------------------------------------------------
@@ -153,6 +159,14 @@ export async function compressImage(file: File, max = 1600, quality = 0.82): Pro
 export async function uploadPhoto(condoId: string, file: Blob): Promise<string> {
   const path = `${condoId}/${crypto.randomUUID()}.jpg`
   must(await supabase.storage.from(PHOTO_BUCKET).upload(path, file, { contentType: 'image/jpeg' }))
+  return path
+}
+
+/** Envia o PDF de um laudo anterior (mesmo bucket privado das fotos, pasta própria). */
+export async function uploadDocAnterior(condoId: string, file: File): Promise<string> {
+  const ext = (file.name.split('.').pop() || 'pdf').toLowerCase().replace(/[^a-z0-9]/g, '') || 'pdf'
+  const path = `${condoId}/anteriores/${crypto.randomUUID()}.${ext}`
+  must(await supabase.storage.from(PHOTO_BUCKET).upload(path, file, { contentType: file.type || 'application/pdf' }))
   return path
 }
 
