@@ -123,15 +123,12 @@ export function Collapsible({
   title, hint, children, defaultOpen,
 }: { title: string; hint?: string; children: ReactNode; defaultOpen?: boolean }) {
   return (
-    <details
-      className="span2" open={defaultOpen}
-      style={{ gridColumn: '1 / -1', border: '1px solid #dde5e2', borderRadius: 10, padding: '8px 12px', background: '#fafcfb' }}
-    >
-      <summary style={{ cursor: 'pointer', fontWeight: 800, fontSize: 13, color: '#344054', padding: '4px 0' }}>
+    <details className="span2 collapsible" open={defaultOpen}>
+      <summary>
         {title}
-        {hint && <span style={{ fontWeight: 600, fontSize: 11, color: '#667085', marginLeft: 6 }}>{hint}</span>}
+        {hint && <span>{hint}</span>}
       </summary>
-      <div className="form-grid two" style={{ marginTop: 10 }}>{children}</div>
+      <div className="form-grid two">{children}</div>
     </details>
   )
 }

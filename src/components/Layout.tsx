@@ -1,38 +1,49 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import {
+  BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileText, HardHat, House, KeyRound,
+  Layers, ListChecks, LogOut, Menu, Plus, ShieldCheck, Stethoscope, TriangleAlert, Upload, UserRound, Users, X,
+  type LucideIcon,
+} from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
 import { useCondo } from '../state/CondoProvider'
 
-export const NAV: { group: string; items: { to: string; label: string; needsCondo?: boolean }[] }[] = [
+type NavItem = { to: string; label: string; icon: LucideIcon; needsCondo?: boolean }
+
+export const NAV: { group: string; items: NavItem[] }[] = [
   { group: 'Atendimento', items: [
-    { to: '/', label: '🏠 Atendimento' },
-    { to: '/condominio', label: '🏢 Condomínio' },
-    { to: '/agenda', label: '📅 Agenda', needsCondo: true },
-    { to: '/inspecao', label: '📋 Inspeção SST', needsCondo: true },
+    { to: '/', label: 'Atendimento', icon: House },
+    { to: '/condominio', label: 'Condomínio', icon: Building2 },
+    { to: '/agenda', label: 'Agenda', icon: CalendarDays, needsCondo: true },
+    { to: '/inspecao', label: 'Inspeção SST', icon: ClipboardCheck, needsCondo: true },
   ] },
   { group: 'Cadastro técnico', items: [
-    { to: '/setores', label: '🧱 Setores', needsCondo: true },
-    { to: '/funcoes', label: '👷 Funções', needsCondo: true },
-    { to: '/ghe', label: '🧩 GHE', needsCondo: true },
-    { to: '/riscos', label: '⚠️ Inventário de riscos', needsCondo: true },
-    { to: '/epis', label: '🦺 EPIs', needsCondo: true },
-    { to: '/plano', label: '✅ Plano de ação', needsCondo: true },
+    { to: '/setores', label: 'Setores', icon: Layers, needsCondo: true },
+    { to: '/funcoes', label: 'Funções', icon: HardHat, needsCondo: true },
+    { to: '/ghe', label: 'GHE', icon: Users, needsCondo: true },
+    { to: '/riscos', label: 'Inventário de riscos', icon: TriangleAlert, needsCondo: true },
+    { to: '/epis', label: 'EPIs', icon: ShieldCheck, needsCondo: true },
+    { to: '/plano', label: 'Plano de ação', icon: ListChecks, needsCondo: true },
   ] },
   { group: 'Documentos', items: [
-    { to: '/pgr', label: '📘 PGR / NR-1', needsCondo: true },
-    { to: '/drps', label: '🧠 NR-1 / DRPS', needsCondo: true },
-    { to: '/pcmso', label: '🩺 PCMSO', needsCondo: true },
-    { to: '/ltcat', label: '🏭 LTCAT', needsCondo: true },
-    { to: '/laudos', label: '📄 Laudos', needsCondo: true },
+    { to: '/pgr', label: 'PGR / NR-1', icon: BookOpen, needsCondo: true },
+    { to: '/drps', label: 'NR-1 / DRPS', icon: Brain, needsCondo: true },
+    { to: '/pcmso', label: 'PCMSO', icon: Stethoscope, needsCondo: true },
+    { to: '/ltcat', label: 'LTCAT', icon: Factory, needsCondo: true },
+    { to: '/laudos', label: 'Laudos', icon: FileText, needsCondo: true },
   ] },
   { group: 'Sistema', items: [
-    { to: '/equipe', label: '🧑‍⚕️ Equipe técnica' },
-    { to: '/importar', label: '⬆️ Importar dados V8' },
-    { to: '/conta', label: '🔐 Minha conta' },
+    { to: '/equipe', label: 'Equipe técnica', icon: UserRound },
+    { to: '/importar', label: 'Importar dados V8', icon: Upload },
+    { to: '/conta', label: 'Minha conta', icon: KeyRound },
   ] },
 ]
 
-const TITLES = Object.fromEntries(NAV.flatMap((g) => g.items.map((i) => [i.to, i.label.replace(/^\S+\s/, '')])))
+const TITLES = Object.fromEntries(NAV.flatMap((g) => g.items.map((i) => [i.to, i.label])))
+
+function initials(name: string) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || '?'
+}
 
 export default function Layout() {
   const { profile, signOut } = useAuth()
@@ -44,6 +55,7 @@ export default function Layout() {
   // No celular o menu fica recolhido e fecha ao trocar de tela
   const [menuOpen, setMenuOpen] = useState(false)
   useEffect(() => setMenuOpen(false), [loc.pathname])
+  const userName = profile?.nome || profile?.email || ''
 
   return (
     <div className="app-shell">
@@ -54,8 +66,8 @@ export default function Layout() {
             <strong>Futuro Facilite</strong>
             <span>Sistema SST</span>
           </div>
-          <button className="menu-toggle" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? '✕ Fechar' : '☰ Menu'}
+          <button className="menu-toggle" aria-expanded={menuOpen} aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'} onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
         <nav>
@@ -63,20 +75,26 @@ export default function Layout() {
             <div key={g.group} style={{ display: 'contents' }}>
               <div className="nav-group">{g.group}</div>
               {g.items.map((i) => (
-                <NavLink key={i.to} to={i.to} end={i.to === '/'}>{i.label}</NavLink>
+                <NavLink key={i.to} to={i.to} end={i.to === '/'}>
+                  <i.icon size={17} strokeWidth={1.75} aria-hidden="true" />
+                  <span>{i.label}</span>
+                </NavLink>
               ))}
             </div>
           ))}
         </nav>
         <div className="side-user">
-          <b>{profile?.nome || profile?.email}</b>
-          <span>{profile?.role === 'admin' ? 'Administrador' : 'Técnico'}</span>
-          <button onClick={signOut}>Sair</button>
+          <div className="avatar" aria-hidden="true">{initials(userName)}</div>
+          <div className="side-user-info">
+            <b>{userName}</b>
+            <span>{profile?.role === 'admin' ? 'Administrador' : 'Técnico'}</span>
+          </div>
+          <button className="icon-btn" onClick={signOut} aria-label="Sair" title="Sair"><LogOut size={17} strokeWidth={1.75} /></button>
         </div>
       </aside>
       <main className="main">
         <header className="topbar">
-          <div>
+          <div className="topbar-title">
             <h1>{title}</h1>
             <p>{condo ? condo.nome_fantasia || condo.razao_social : 'Nenhum condomínio selecionado'}</p>
           </div>
@@ -90,7 +108,9 @@ export default function Layout() {
                 ))}
               </select>
             </label>
-            <button className="primary" onClick={() => nav('/condominio?novo=1')}>+ Novo condomínio</button>
+            <button className="primary" onClick={() => nav('/condominio?novo=1')}>
+              <Plus size={16} strokeWidth={2} aria-hidden="true" /> Novo condomínio
+            </button>
           </div>
         </header>
         <Outlet />

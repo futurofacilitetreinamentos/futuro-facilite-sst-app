@@ -1,5 +1,6 @@
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { Building2 } from 'lucide-react'
 import { AuthProvider, useAuth } from './auth/AuthProvider'
 import Layout, { needsCondo } from './components/Layout'
 import { Loading } from './components/ui'
@@ -25,7 +26,7 @@ function CondoGate({ children }: { children: ReactNode }) {
     return (
       <div className="view">
         <div className="module-coming">
-          <div className="big-icon">🏢</div>
+          <div className="big-icon"><Building2 size={26} strokeWidth={1.75} aria-hidden="true" /></div>
           <h2>Cadastre um condomínio primeiro</h2>
           <p>Este módulo usa os dados do cadastro central. Comece pelo cadastro do condomínio.</p>
           <Link to="/condominio?novo=1"><button className="primary">Cadastrar condomínio</button></Link>

@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { Plus } from 'lucide-react'
 import { ErrorBox, Field, Modal, PanelHead, type FieldDef } from './ui'
 
 /**
@@ -53,7 +54,9 @@ export function CrudSection<T extends { id?: string }>({
   return (
     <section className="panel">
       <PanelHead eyebrow={eyebrow} title={title}>
-        <button className="primary" onClick={() => { setError(null); setEditing(blank()) }}>+ {singular}</button>
+        <button className="primary" onClick={() => { setError(null); setEditing(blank()) }}>
+          <Plus size={16} strokeWidth={2} aria-hidden="true" /> {singular}
+        </button>
       </PanelHead>
       {notice}
       {rows.length === 0 && <div className="empty">Nenhum registro ainda.</div>}

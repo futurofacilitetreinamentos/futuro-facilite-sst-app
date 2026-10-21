@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { CircleCheck } from 'lucide-react'
 import { fmtDate } from '../components/ui'
 import { useChildren, useGhes } from '../lib/db'
 import { useCondo } from '../state/CondoProvider'
@@ -47,14 +48,16 @@ export default function Dashboard() {
           <h2>{condo.nome_fantasia || condo.razao_social}</h2>
           <p>{[condo.cnpj, condo.endereco, condo.responsavel_empresa && `Síndico(a): ${condo.responsavel_empresa}`].filter(Boolean).join(' · ')}</p>
         </div>
-        <div className="hero-badge">{steps.filter((s) => s.done).length}/4<span>etapas concluídas</span></div>
+        <div className="hero-badge" style={{ '--pct': `${(steps.filter((s) => s.done).length / 4) * 100}%` } as React.CSSProperties}>
+          <div className="hb-in">{steps.filter((s) => s.done).length}/4<span>etapas concluídas</span></div>
+        </div>
       </div>
 
       <div className="pipeline">
         {steps.map((s, i) => (
           <button key={s.key} className={'step ' + (s.done ? 'done' : s === now ? 'now' : 'wait')} onClick={() => nav(s.to)}>
             <b>ETAPA {i + 1}</b>
-            <strong>{s.done ? '✓ ' : ''}{s.titulo}</strong>
+            <strong>{s.done && <CircleCheck size={15} strokeWidth={2} className="step-ok" aria-hidden="true" />}{s.titulo}</strong>
             <span>{s.desc}</span>
           </button>
         ))}

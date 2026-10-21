@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Camera, Image as ImageIcon, Plus } from 'lucide-react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ErrorBox, Loading, PanelHead, fmtDate } from '../components/ui'
 import { DocButtons } from '../components/DocPreview'
@@ -62,7 +63,7 @@ export function InspecaoList() {
     <div className="view">
       <section className="panel">
         <PanelHead eyebrow="INSPEÇÃO SST" title="Relatórios de inspeção">
-          <button className="primary" onClick={() => nav('/inspecao/nova')}>+ Nova inspeção</button>
+          <button className="primary" onClick={() => nav('/inspecao/nova')}><Plus size={16} strokeWidth={2} aria-hidden="true" /> Nova inspeção</button>
         </PanelHead>
         <input placeholder="Buscar por número, técnico ou data…" value={q} onChange={(e) => setQ(e.target.value)} style={{ marginBottom: 12 }} />
         {isLoading && <Loading />}
@@ -250,7 +251,7 @@ export function InspecaoForm() {
           <div className="span3">
             <label>Foto de capa (opcional)</label>
             <div className="photo-buttons">
-              <label className="photo-btn">🖼️ Escolher foto
+              <label className="photo-btn"><ImageIcon size={15} strokeWidth={1.75} aria-hidden="true" /> Escolher foto
                 <input type="file" accept="image/*" onChange={(e) => addPhotos(e.target.files, ([p]) => set({ foto_capa: p }))} />
               </label>
               {d.foto_capa && <button className="outline small" onClick={() => set({ foto_capa: null })}>Remover</button>}
@@ -300,11 +301,11 @@ export function InspecaoForm() {
                     </div>
                   )}
                   <div className="photo-buttons">
-                    <label className="photo-btn">📷 Tirar foto
+                    <label className="photo-btn"><Camera size={15} strokeWidth={1.75} aria-hidden="true" /> Tirar foto
                       <input type="file" accept="image/*" capture="environment"
                         onChange={(e) => addPhotos(e.target.files, (p) => setD((cur) => cur && ({ ...cur, checklist: { ...cur.checklist, [key]: { ...cur.checklist[key], photos: [...cur.checklist[key].photos, ...p] } } })))} />
                     </label>
-                    <label className="photo-btn">🖼️ Galeria
+                    <label className="photo-btn"><ImageIcon size={15} strokeWidth={1.75} aria-hidden="true" /> Galeria
                       <input type="file" accept="image/*" multiple
                         onChange={(e) => addPhotos(e.target.files, (p) => setD((cur) => cur && ({ ...cur, checklist: { ...cur.checklist, [key]: { ...cur.checklist[key], photos: [...cur.checklist[key].photos, ...p] } } })))} />
                     </label>
