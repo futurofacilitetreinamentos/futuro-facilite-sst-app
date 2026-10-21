@@ -33,7 +33,10 @@ export default function Dashboard() {
   const proxima = agenda.filter((a) => a.status === 'agendada').sort((a, b) => a.data.localeCompare(b.data))[0]
   const altos = riscos.filter((r) => r.prob * r.sev >= 10).length
   const steps = [
-    { key: 'cadastro', titulo: 'Cadastro', done: Boolean(condo.razao_social && setores.length && funcoes.length), desc: 'Condomínio, setores e funções', to: '/condominio' },
+    // sem funções ainda: o caminho mais rápido é montar pelo modelo de condomínio
+    { key: 'cadastro', titulo: 'Cadastro', done: Boolean(condo.razao_social && setores.length && funcoes.length),
+      desc: funcoes.length ? 'Condomínio, setores e funções' : 'Monte pelo modelo de condomínio',
+      to: funcoes.length ? '/condominio' : '/modelo' },
     { key: 'agenda', titulo: 'Agendamento', done: agenda.some((a) => a.status !== 'cancelada'), desc: proxima ? `Próxima visita ${fmtDate(proxima.data)}` : 'Agendar visita técnica', to: '/agenda' },
     { key: 'inspecao', titulo: 'Inspeção', done: inspecoes.length > 0, desc: inspecoes[0] ? `Última: ${inspecoes[0].numero}` : 'Checklist em campo', to: proxima ? `/inspecao/nova?agenda=${proxima.id}` : '/inspecao/nova' },
     { key: 'laudos', titulo: 'Laudos', done: inspecoes.length > 0 && riscos.length > 0, desc: 'PGR, DRPS, PCMSO, LTCAT', to: '/laudos' },

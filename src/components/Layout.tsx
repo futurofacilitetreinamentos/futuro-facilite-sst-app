@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileText, HardHat, House, KeyRound,
-  Layers, ListChecks, LogOut, Menu, Plus, ShieldCheck, Stethoscope, TriangleAlert, Upload, UserRound, Users, X,
+  Layers, ListChecks, LogOut, Menu, Plus, ShieldCheck, Sparkles, Stethoscope, TriangleAlert, Upload, UserRound, Users, X,
   type LucideIcon,
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
@@ -18,6 +18,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { to: '/inspecao', label: 'Inspeção SST', icon: ClipboardCheck, needsCondo: true },
   ] },
   { group: 'Cadastro técnico', items: [
+    { to: '/modelo', label: 'Montar pelo modelo', icon: Sparkles, needsCondo: true },
     { to: '/setores', label: 'Setores', icon: Layers, needsCondo: true },
     { to: '/funcoes', label: 'Funções', icon: HardHat, needsCondo: true },
     { to: '/ghe', label: 'GHE', icon: Users, needsCondo: true },

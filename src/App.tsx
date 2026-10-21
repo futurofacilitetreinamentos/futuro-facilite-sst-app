@@ -15,6 +15,7 @@ import EquipePage from './pages/EquipePage'
 import ImportarPage from './pages/ImportarPage'
 import { InspecaoForm, InspecaoList } from './pages/InspecaoPage'
 import Login from './pages/Login'
+import ModeloPage from './pages/ModeloPage'
 import { EpisPage, FuncoesPage, GhePage, RiscosPage, SetoresPage } from './pages/TecnicoPages'
 
 /** Bloqueia telas que dependem de um condomínio cadastrado. */
@@ -55,6 +56,7 @@ function Private() {
           <Route path="inspecao" element={g(<InspecaoList />)} />
           <Route path="inspecao/nova" element={g(<InspecaoForm key="nova" />)} />
           <Route path="inspecao/:id" element={g(<InspecaoForm />)} />
+          <Route path="modelo" element={g(<ModeloPage />)} />
           <Route path="setores" element={g(<SetoresPage />)} />
           <Route path="funcoes" element={g(<FuncoesPage />)} />
           <Route path="ghe" element={g(<GhePage />)} />

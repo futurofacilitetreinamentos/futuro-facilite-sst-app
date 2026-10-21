@@ -70,10 +70,18 @@ export function groups(p: LegacyProject): GheGroup[] {
   const funcoes = p.funcoes || [];
   const riscos = p.riscos || [];
   if (ghes.length) {
+    const norm = (s?: string) => String(s || '').trim().toLowerCase();
     return ghes.map((g) => {
-      const fn = funcoes.filter((f) => f.setor === g.setor || String(g.funcoes || '').toLowerCase().includes(String(f.nome || '').toLowerCase()));
-      const rs = riscos.filter((r) => r.ghe === g.nome || fn.some((f) => f.nome === r.funcao));
-      return { ghe: g, funcoes: fn.length ? fn : funcoes.filter((f) => f.setor === g.setor), riscos: rs.length ? rs : riscos.filter((r) => r.ghe === g.nome) };
+      // Funções do GHE: a lista explícita (ghe_funcoes) manda; o setor só entra
+      // quando o GHE não tem funções vinculadas (dados antigos da V8). Antes o setor
+      // valia sempre, e GHEs do mesmo setor puxavam as funções e riscos uns dos outros.
+      const lista = String(g.funcoes || '').split(',').map(norm).filter(Boolean);
+      const fn = lista.length
+        ? funcoes.filter((f) => lista.includes(norm(f.nome)))
+        : funcoes.filter((f) => !!g.setor && f.setor === g.setor);
+      // Risco com GHE definido pertence só a esse GHE; sem GHE, segue a função.
+      const rs = riscos.filter((r) => (r.ghe ? r.ghe === g.nome : fn.some((f) => f.nome === r.funcao)));
+      return { ghe: g, funcoes: fn, riscos: rs };
     });
   }
   if (funcoes.length) {

@@ -91,7 +91,10 @@ const GLICEMIA: PcmsoExame = { exame: 'Glicemia', esocial: '0658', tipos: 'A / P
 
 const RE_RUIDO = /ru[ií]do|n[ií]vel de press[aã]o sonora|barulho/;
 const RE_POEIRA_MINERAL = /s[ií]lica|asbesto|amianto|poeira mineral|poeiras minerais|carv[aã]o mineral|aerodispers/;
-const RE_ALTURA = /trabalho em altura|queda de altura|queda com diferen[cç]a de n[ií]vel|diferen[cç]a de n[ií]vel|andaime|telhado|nr-?\s?35|eletricidade|choque el[eé]trico|instala[cç][oõ]es el[eé]tricas|nr-?\s?10/;
+// Só atividades de fato regidas pela NR-35 (acima de 2 m) ou NR-10. Menções genéricas a
+// "queda de altura" (escada baixa, limpeza de vidros) ou "choque elétrico" (equipamento
+// ligado na tomada) não justificam acuidade/ECG/glicemia.
+const RE_ALTURA = /trabalho em altura|acima de 2 ?m|andaime|telhado|nr-?\s?35|servi[cç]os? em eletricidade|servi[cç]os? el[eé]tricos?|instala[cç][oõ]es el[eé]tricas|nr-?\s?10/;
 
 function addUnique(arr: PcmsoExame[], item: PcmsoExame): void {
   if (!arr.some((x) => x.exame === item.exame)) arr.push({ ...item });
