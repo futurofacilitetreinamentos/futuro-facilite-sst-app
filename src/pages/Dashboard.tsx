@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { CircleCheck } from 'lucide-react'
 import { fmtDate } from '../components/ui'
+import { AlertasPanel } from '../components/AlertasPanel'
 import { useChildren, useGhes } from '../lib/db'
 import { useCondo } from '../state/CondoProvider'
 
@@ -71,6 +72,8 @@ export default function Dashboard() {
           <span>{now.desc}</span>
         </div>
       )}
+
+      <AlertasPanel condo={condo} />
 
       <div className="cards metrics">
         <article><b>{setores.length}</b><span>Setores</span></article>

@@ -40,6 +40,9 @@ export type {
 export { printDoc } from './print';
 export type { PrintOptions } from './print';
 
+export { buildOrdemServico, ordemServicoTargets, trabalhadorAtivo, fmtCpf } from './os-doc';
+export type { OrdemServicoOpts } from './os-doc';
+
 export { riskLevel, riskScore, te, teNome, pd, pdNome, gr, grNome, grByScore, GR_MATRIX } from './risk';
 export type { RiskLevel, RiskLevelLabel, RiskLevelClass, TeCode, PdCode, GrCode } from './risk';
 

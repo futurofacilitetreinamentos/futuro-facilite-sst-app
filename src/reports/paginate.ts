@@ -8,8 +8,9 @@ import baseCss from './doc.css?raw';
 import pgrCss from './doc-pgr.css?raw';
 import ltcatCss from './doc-ltcat.css?raw';
 import pcmsoCss from './doc-pcmso.css?raw';
+import osCss from './doc-os.css?raw';
 
-const docCss = [baseCss, pgrCss, ltcatCss, pcmsoCss].join('\n');
+const docCss = [baseCss, pgrCss, ltcatCss, pcmsoCss, osCss].join('\n');
 
 export interface PaginatedDoc {
   /** Number of sheets (cover included). */

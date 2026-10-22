@@ -1,0 +1,77 @@
+/* Saúde e prazos: ASOs, treinamentos e painel de alertas. Usa só os tokens de index.css. */
+
+/* ------------------------------------------------------------ painel de alertas */
+.alertas-panel { padding: 0; overflow: hidden; margin-top: 16px; }
+.alertas-toggle {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  background: var(--surface); color: var(--ink); border: 0; border-radius: 0; box-shadow: none;
+  padding: 14px 18px; cursor: pointer; font: inherit;
+}
+.alertas-toggle:hover { background: var(--soft); }
+.alertas-icon {
+  display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 10px;
+  background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-line);
+}
+.alertas-title { display: grid; gap: 2px; min-width: 0; }
+.alertas-title strong { font-size: 15px; font-weight: 600; }
+.alertas-counts { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; justify-content: flex-end; }
+.alertas-chev { flex: none; color: var(--muted); transition: transform 0.15s; }
+.alertas-chev.open { transform: rotate(90deg); }
+.alertas-list { list-style: none; margin: 0; padding: 4px 12px 12px; border-top: 1px solid var(--line); }
+.alerta a {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 8px; border-radius: 10px;
+  color: inherit; text-decoration: none; border-bottom: 1px solid var(--line);
+}
+.alerta:last-child a { border-bottom: 0; }
+.alerta a:hover { background: var(--soft); }
+.alerta .badge { flex: none; min-width: 74px; justify-content: center; margin-top: 1px; }
+.alerta-body { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.alerta-body b { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.alerta-body small { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.alerta-go { flex: none; color: var(--subtle); margin-top: 2px; }
+
+/* ------------------------------------------------------------ resumo (ASO / treinamentos) */
+.saude-resumo { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.saude-filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+.saude-filtros label { flex: 1 1 200px; max-width: 320px; }
+
+/* cartão do trabalhador com histórico */
+.saude-card .entity-title { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.saude-hist { margin-top: 12px; border-top: 1px dashed var(--line-2); padding-top: 8px; }
+.saude-hist-row {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--line);
+}
+.saude-hist-row:last-child { border-bottom: 0; }
+.saude-hist-row .entity-title { font-size: 13.5px; }
+.saude-hist-empty { font-size: 12.5px; color: var(--muted); padding: 6px 0; }
+.saude-inativos { margin-top: 10px; }
+.saude-inativos > summary { cursor: pointer; font-size: 13px; color: var(--muted); padding: 8px 0; }
+
+/* ------------------------------------------------------------ exames do ASO (formulário) */
+.exames-box { border: 1px solid var(--line); border-radius: var(--radius); background: var(--soft); padding: 12px; }
+.exames-box > .exames-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.exames-head b { font-size: 13px; font-weight: 600; color: var(--ink); }
+.exame-row {
+  display: grid; grid-template-columns: minmax(0, 2.2fr) 84px 130px 130px 140px 32px; gap: 8px; align-items: end;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 6px;
+}
+.exame-row label { font-size: 11.5px; }
+.exame-row input, .exame-row select { margin-top: 3px; padding: 7px 8px; font-size: 13px; }
+.exame-row .exame-del { padding: 6px; height: 34px; display: grid; place-items: center; }
+.medico-box { display: grid; grid-template-columns: minmax(0, 2fr) 1fr 80px; gap: 10px; }
+
+@media (max-width: 900px) {
+  .alertas-toggle { flex-wrap: wrap; padding: 12px 14px; }
+  .alertas-counts { order: 3; width: 100%; justify-content: flex-start; margin-left: 48px; }
+  .alertas-chev { margin-left: auto; }
+  .alertas-list { padding: 4px 6px 8px; }
+  .alerta .badge { min-width: 0; }
+  .saude-filtros label { max-width: none; }
+  .saude-hist-row { flex-direction: column; }
+  .exame-row { grid-template-columns: 1fr 1fr; }
+  .exame-row .exame-nome { grid-column: 1 / -1; }
+  .exame-row .exame-del { grid-column: 2; justify-self: end; width: 40px; }
+  .medico-box { grid-template-columns: 1fr 1fr; }
+  .medico-box > :first-child { grid-column: 1 / -1; }
+}

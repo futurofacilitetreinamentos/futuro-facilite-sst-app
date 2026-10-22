@@ -6,7 +6,7 @@ import { must, supabase } from './supabase'
 import { signedUrls } from './db'
 import { signatario } from './signatarios'
 import type {
-  Agendamento, Condominio, DocAnterior, DocRevisao, MedicaoAnterior, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Medicao, Risco, Setor,
+  Agendamento, Condominio, DocAnterior, DocRevisao, MedicaoAnterior, Trabalhador, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, Medicao, Risco, Setor,
 } from './types'
 
 const s = (v: unknown) => (v == null ? '' : String(v))
@@ -36,6 +36,7 @@ export interface CondoBundle {
   epis: Epi[]
   docsAnteriores: DocAnterior[]
   medicoesAnteriores: MedicaoAnterior[]
+  trabalhadores: Trabalhador[]
 }
 
 /** Medição aproveitada de laudo anterior, com a fonte para citar no documento. */
@@ -59,7 +60,7 @@ export async function fetchBundle(condoId: string): Promise<CondoBundle> {
       if (r.error) { console.warn(`Tabela ${table} indisponível (migrações 0002/0004 aplicadas?):`, r.error.message); return [] as T[] }
       return (r.data ?? []) as T[]
     })
-  const [condo, setores, funcoes, ghesRaw, riscos, agenda, inspecoes, drps, equipe, revisoes, epis, docsAnteriores, medicoesAnteriores] = await Promise.all([
+  const [condo, setores, funcoes, ghesRaw, riscos, agenda, inspecoes, drps, equipe, revisoes, epis, docsAnteriores, medicoesAnteriores, trabalhadores] = await Promise.all([
     supabase.from('condominios').select('*').eq('id', condoId).single().then((r) => must(r) as Condominio),
     by<Setor>('setores'),
     by<Funcao>('funcoes'),
@@ -74,9 +75,10 @@ export async function fetchBundle(condoId: string): Promise<CondoBundle> {
     optional<Epi>('epis'),
     optional<DocAnterior>('docs_anteriores'),
     optional<MedicaoAnterior>('medicoes_anteriores'),
+    optional<Trabalhador>('trabalhadores'),
   ])
   const ghes = ghesRaw.map(({ ghe_funcoes, ...g }) => ({ ...g, funcao_ids: ghe_funcoes.map((x) => x.funcao_id) }))
-  return { condo, setores, funcoes, ghes, riscos, agenda, inspecoes, drps, equipe, revisoes, epis, docsAnteriores, medicoesAnteriores }
+  return { condo, setores, funcoes, ghes, riscos, agenda, inspecoes, drps, equipe, revisoes, epis, docsAnteriores, medicoesAnteriores, trabalhadores }
 }
 
 export function toLegacyProject(b: CondoBundle): LegacyProject {
@@ -180,6 +182,10 @@ export function toLegacyProject(b: CondoBundle): LegacyProject {
       ghe: gheNome(e.ghe_id), funcao: funcaoNome(e.funcao_id), nome: e.nome, ca: s(e.ca),
       validadeCa: s(e.validade_ca).slice(0, 10), eficaz: bool(e.eficaz) ?? undefined, imagem: s(e.imagem),
       status: e.status === 'recomendado' ? 'recomendado' : 'existente',
+    })),
+    trabalhadores: b.trabalhadores.map((t) => ({
+      id: t.id, nome: t.nome, cpf: s(t.cpf), matricula: s(t.matricula), funcao: funcaoNome(t.funcao_id),
+      admissao: s(t.data_admissao).slice(0, 10), nascimento: s(t.data_nascimento).slice(0, 10), demissao: s(t.data_demissao).slice(0, 10),
     })),
   }
 }

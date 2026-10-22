@@ -7,6 +7,11 @@ import { Loading } from './components/ui'
 import { CondoProvider, useCondo } from './state/CondoProvider'
 import AgendaPage from './pages/AgendaPage'
 import AnterioresPage from './pages/AnterioresPage'
+import AsosPage from './pages/AsosPage'
+import EsocialPage from './pages/EsocialPage'
+import OrdemServicoPage from './pages/OrdemServicoPage'
+import TrabalhadoresPage from './pages/TrabalhadoresPage'
+import TreinamentosPage from './pages/TreinamentosPage'
 import CondominioPage from './pages/CondominioPage'
 import ContaPage from './pages/ContaPage'
 import Dashboard from './pages/Dashboard'
@@ -70,6 +75,11 @@ function Private() {
           <Route path="ltcat" element={g(<LtcatPage />)} />
           <Route path="laudos" element={g(<LaudosPage />)} />
           <Route path="anteriores" element={g(<AnterioresPage />)} />
+          <Route path="trabalhadores" element={g(<TrabalhadoresPage />)} />
+          <Route path="asos" element={g(<AsosPage />)} />
+          <Route path="treinamentos" element={g(<TreinamentosPage />)} />
+          <Route path="ordem-servico" element={g(<OrdemServicoPage />)} />
+          <Route path="esocial" element={g(<EsocialPage />)} />
           <Route path="equipe" element={<EquipePage />} />
           <Route path="importar" element={<ImportarPage />} />
           <Route path="conta" element={<ContaPage />} />

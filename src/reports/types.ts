@@ -212,6 +212,19 @@ export interface LegacyAgenda {
   useNext?: boolean;
 }
 
+/** Trabalhador (migração 0005); funcao = nome da função. */
+export interface LegacyTrabalhador {
+  id: string;
+  nome: string;
+  cpf: string;
+  matricula: string;
+  funcao: string;
+  /** ISO dates */
+  admissao: string;
+  nascimento: string;
+  demissao: string;
+}
+
 export interface LegacyProject {
   id: string;
   drpsToken?: string;
@@ -226,6 +239,8 @@ export interface LegacyProject {
   revisoes?: LegacyRevisao[];
   /** Empty/absent → generators keep the regex/catalog behaviour. */
   epis?: LegacyEpi[];
+  /** Trabalhadores ativos e desligados (migração 0005). */
+  trabalhadores?: LegacyTrabalhador[];
 }
 
 /** 'Conforme' | 'Não conforme' | 'Não se aplica' | 'Pendente' */

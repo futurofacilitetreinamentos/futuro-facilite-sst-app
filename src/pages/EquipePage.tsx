@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { CrudSection } from '../components/CrudSection'
-import type { FieldDef } from '../components/ui'
+import { Field, type FieldDef } from '../components/ui'
+import { cpfError, formatCpf, onlyDigits } from '../lib/cpf'
 import { useEquipe, useRemove } from '../lib/db'
 import { docsDoTipo, DOCS_ASSINATURA } from '../lib/signatarios'
 import { must, supabase } from '../lib/supabase'
@@ -14,6 +15,8 @@ const GROUPS: { tipo: EquipeTipo; title: string; singular: string; reg: string }
   { tipo: 'engenheiro', title: 'Engenheiros de segurança', singular: 'Engenheiro', reg: 'CREA' },
 ]
 
+const UFS = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'] as const
+
 const docLabel = (doc: string) => DOCS_ASSINATURA.find((d) => d.doc === doc)?.label ?? doc
 
 export default function EquipePage() {
@@ -23,7 +26,19 @@ export default function EquipePage() {
 
   /** Salva o profissional; cada documento tem um único padrão, então tira a marca de quem tinha antes. */
   async function salvar(r: Row) {
-    const { id, ...campos } = r
+    const { id, cpf: cpfForm, uf_conselho: ufForm, ...resto } = r
+    const cpf = onlyDigits(cpfForm)
+    const erroCpf = cpfError(cpf)
+    if (erroCpf) throw new Error(erroCpf)
+    // CPF e UF (migração 0005) só vão no comando se preenchidos ou se o cadastro já tem as colunas,
+    // para o cadastro continuar funcionando num banco onde a migração ainda não rodou
+    const original = data.find((m) => m.id === id)
+    const temColunas = original ? 'cpf' in original : false
+    const campos = {
+      ...resto,
+      ...(cpf || temColunas ? { cpf } : {}),
+      ...(ufForm || temColunas ? { uf_conselho: ufForm ?? '' } : {}),
+    }
     const padrao = (campos.padrao ?? []).filter((doc) => docsDoTipo(campos.tipo).some((d) => d.doc === doc))
     const saved = must(await (id
       ? supabase.from('equipe').update({ ...campos, padrao }).eq('id', id).select().single()
@@ -61,12 +76,12 @@ export default function EquipePage() {
             singular={g.singular}
             rows={data.filter((m) => m.tipo === g.tipo)}
             fields={fields}
-            blank={() => ({ tipo: g.tipo, nome: '', funcao: '', registro: '', rqe: '', telefone: '', email: '', padrao: [] })}
+            blank={() => ({ tipo: g.tipo, nome: '', funcao: '', registro: '', rqe: '', telefone: '', email: '', padrao: [], cpf: '', uf_conselho: '' })}
             render={(m) => ({
               title: m.nome,
               meta: (
                 <>
-                  {[m.funcao, m.registro && `${g.reg} ${m.registro}`, m.rqe && `RQE ${m.rqe}`, m.telefone, m.email].filter(Boolean).join(' · ')}
+                  {[m.funcao, m.registro && `${g.reg} ${m.registro}${m.uf_conselho ? '/' + m.uf_conselho : ''}`, m.cpf && `CPF ${formatCpf(m.cpf)}`, m.rqe && `RQE ${m.rqe}`, m.telefone, m.email].filter(Boolean).join(' · ')}
                   {(m.padrao ?? []).length > 0 && (
                     <span className="padrao-tags">
                       {(m.padrao ?? []).map((doc) => <span key={doc} className="badge ok">Padrão: {docLabel(doc)}</span>)}
@@ -75,7 +90,25 @@ export default function EquipePage() {
                 </>
               ),
             })}
-            extraForm={(row, set) => (
+            extraForm={(row, set) => {
+              const erroCpf = cpfError(row.cpf)
+              return (
+              <>
+              <label>
+                CPF
+                <input
+                  value={formatCpf(row.cpf)} inputMode="numeric" placeholder="000.000.000-00" maxLength={14} autoComplete="off"
+                  aria-invalid={Boolean(erroCpf)} style={erroCpf ? { borderColor: 'var(--danger)' } : undefined}
+                  onChange={(e) => set({ cpf: onlyDigits(e.target.value).slice(0, 11) })}
+                />
+                {erroCpf
+                  ? <span className="field-hint" style={{ color: 'var(--danger)' }}>{erroCpf}</span>
+                  : <span className="field-hint">Usado no eSocial (responsável pelos registros / médico do ASO).</span>}
+              </label>
+              <Field<Row>
+                def={{ key: 'uf_conselho', label: `UF do conselho (${g.tipo === 'medico' ? 'CRM' : g.tipo === 'engenheiro' ? 'CREA' : 'registro'})`, type: 'select', options: UFS, emptyLabel: '— UF —' }}
+                value={row.uf_conselho} onChange={(v) => set({ uf_conselho: v })}
+              />
               <div className="span2">
                 <label>Assina por padrão</label>
                 <div className="check-list">
@@ -99,7 +132,9 @@ export default function EquipePage() {
                   })}
                 </div>
               </div>
-            )}
+              </>
+              )
+            }}
             onSave={salvar}
             onRemove={(id) => remove.mutateAsync(id)}
           />

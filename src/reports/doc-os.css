@@ -1,0 +1,158 @@
+/* Estilos específicos da Ordem de Serviço (visual: escopar em .doc-os; regras de paginação sem escopo). */
+
+/* ---- pagination hooks (unscoped: Paged.js matches the bare fragment) */
+.os-head,
+.os-ciencia,
+.os-riscos tbody.pg-keep,
+.os-sign .pg-sign-block {
+  break-inside: avoid;
+}
+
+.os-lead {
+  break-after: avoid;
+}
+
+/* ---- base: OS is a compact working document (10.5pt body) */
+.doc-os .os-sec {
+  font-size: 10.5pt;
+  line-height: 1.4;
+}
+
+.doc-os .os-sec .pgr-text {
+  margin-bottom: 5pt;
+}
+
+.doc-os .os-sec .pg-ul {
+  margin-bottom: 5pt;
+  padding-left: 8mm;
+}
+
+.doc-os .os-sec .pg-ul li {
+  margin-bottom: 1pt;
+}
+
+.doc-os .pg-h1 {
+  font-size: 11pt;
+  margin: 9pt 0 4pt;
+  padding: 1.2mm 2mm;
+  background: #f1f2f1;
+  border-left: 1.6mm solid #0c7a5a;
+}
+
+.doc-os .pg-h1 .pg-hn {
+  flex: 0 0 8mm;
+}
+
+.doc-os .pg-sub {
+  font-size: 10.5pt;
+  margin: 6pt 0 3pt;
+}
+
+.doc-os .os-lead {
+  margin: 4pt 0 2pt;
+}
+
+/* ---- header block */
+.doc-os .os-head {
+  border: 0.75pt solid #d8d9d8;
+  border-top: 2.2mm solid #0c7a5a;
+  padding: 3mm 4mm 2.5mm;
+  margin: 0 0 6pt;
+  text-align: center;
+}
+
+.doc-os .os-head-t {
+  font-size: 13pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+
+.doc-os .os-head-s {
+  font-size: 9.5pt;
+  font-style: italic;
+  color: #333;
+  margin-top: 1mm;
+}
+
+.doc-os .os-head-m {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1mm 6mm;
+  margin-top: 2mm;
+  font-size: 9.5pt;
+}
+
+/* ---- tables */
+.doc-os .os-ident th,
+.doc-os .os-ident td {
+  font-size: 10.5pt;
+  padding: 1mm 2mm;
+}
+
+.doc-os .os-riscos td,
+.doc-os .os-epi td {
+  vertical-align: top;
+}
+
+.doc-os .pgr-table .os-c {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.doc-os .pg-footnote {
+  margin: 0 0 4pt;
+}
+
+.doc-os .os-falta {
+  border-left: 1mm solid #c6ea2a;
+  padding-left: 3mm;
+}
+
+/* ---- ciência e assinaturas */
+.doc-os .os-ciencia .pg-date {
+  margin: 8pt 0 14mm;
+}
+
+.doc-os .os-sign {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  row-gap: 14mm;
+  font-size: 10pt;
+}
+
+.doc-os .os-sign .pg-sign-block {
+  flex: 0 0 47%;
+  line-height: 1.35;
+}
+
+.doc-os .os-sign .pg-sign-block:last-child {
+  flex-basis: 70%;
+  margin: 0 auto;
+}
+
+.doc-os .os-sign .pg-sign-block::before {
+  width: 70mm;
+}
+
+/* lista partida em duas (primeiro item preso ao título) */
+.doc-os .os-sec .pg-ul.os-first {
+  margin-bottom: 0;
+}
+
+.doc-os .os-sec .pg-ul.os-cont {
+  margin-top: 0;
+}
+
+.doc-os .os-sec .pg-ul.os-first li {
+  margin-bottom: 1pt;
+}
+
+/* listas alinhadas à esquerda: o Paged.js aplica text-align-last: justify nos blocos partidos */
+.doc-os .os-sec .pg-ul,
+.doc-os .os-sec .pg-ul li {
+  text-align: left;
+  text-align-last: auto;
+}

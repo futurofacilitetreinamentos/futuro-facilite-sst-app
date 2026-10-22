@@ -1,0 +1,77 @@
+/* Página eSocial (S-2240 / S-2220). Usa as variáveis de index.css. */
+.es .es-inline { display: grid; gap: 4px; font-size: 11px; font-weight: 500; color: var(--muted); }
+.es .es-inline select { margin-top: 0; min-width: 220px; }
+
+.es-aviso { display: flex; gap: 10px; align-items: flex-start; }
+.es-aviso svg { flex: 0 0 auto; margin-top: 2px; color: var(--p); }
+
+.es-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; border-bottom: 1px solid var(--line); }
+.es-tabs button {
+  display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 0; border-bottom: 2px solid transparent;
+  border-radius: 0; padding: 10px 12px; color: var(--muted); margin-bottom: -1px; box-shadow: none;
+}
+.es-tabs button b { color: var(--ink); font-weight: 600; }
+.es-tabs button.on { border-bottom-color: var(--p); color: var(--ink); }
+.es-tabs button:hover:not(.on) { color: var(--ink); background: var(--soft); }
+.es-count { font-size: 11.5px; padding: 1px 8px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); color: var(--muted); }
+.es-tabs button.on .es-count { background: var(--p-50); border-color: var(--p-100); color: var(--p); }
+
+.es-filtros { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
+.es-filtros > label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 500; min-width: 180px; }
+.es-filtros > label input { margin-top: 0; }
+.es-resumo-txt { flex: 1 1 320px; font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 0 0 8px; }
+
+.es-acoes { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.es-acoes button { display: inline-flex; align-items: center; gap: 6px; }
+
+.es-compl { display: grid; gap: 8px; }
+.es-compl-item {
+  display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; line-height: 1.45;
+}
+.es-sn { display: flex; gap: 6px; flex: 0 0 auto; }
+.es-sn label {
+  display: inline-flex; gap: 6px; align-items: center; padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 12.5px; font-weight: 500; cursor: pointer; background: var(--surface);
+}
+.es-sn label.on { border-color: var(--p); background: var(--p-50); color: var(--p); }
+.es-sn input { margin: 0; width: auto; }
+
+.es-table-wrap { overflow-x: auto; }
+.es-table td { vertical-align: middle; }
+.es-table tr.es-open td { background: var(--soft); }
+.es-exp { padding: 4px 6px; }
+.es-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.es-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.es-chip {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 6px;
+  background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-line); white-space: nowrap;
+}
+.es-chip.none { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
+
+.es-det > td { background: var(--soft); }
+.es-det-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 10px 0; font-size: 12.5px; }
+.es-det-grid span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+.es-mini { font-size: 12px; background: var(--surface); }
+.es-mini th, .es-mini td { padding: 6px 8px; }
+.es-xml { margin-top: 10px; }
+.es-xml summary { cursor: pointer; font-size: 12.5px; color: var(--p); }
+.es-xml pre { max-height: 360px; overflow: auto; margin-top: 8px; }
+
+.es-prob { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.es-prob li { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.5; }
+.es-prob li svg { flex: 0 0 auto; margin-top: 3px; }
+.es-prob li.erro svg { color: var(--danger); }
+.es-prob li.aviso svg { color: var(--warn); }
+.es-prob a { color: var(--p); font-weight: 500; white-space: nowrap; }
+.es-prob em { color: var(--muted); }
+.es-sem-prob { display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ok); }
+
+.es-val { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.es-val:last-child { border-bottom: 0; }
+.es-val-head { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+
+@media (max-width: 720px) {
+  .es-compl-item { flex-direction: column; align-items: flex-start; }
+  .es-filtros > label { min-width: 0; flex: 1 1 140px; }
+}

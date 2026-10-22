@@ -1,0 +1,68 @@
+/* Trabalhadores (src/pages/TrabalhadoresPage.tsx) */
+
+.trab-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.trab-metrics article { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; background: var(--soft); }
+.trab-metrics b { display: block; font-size: 22px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
+.trab-metrics span { font-size: 12px; color: var(--muted); }
+.trab-metrics article.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.trab-metrics article.warn b, .trab-metrics article.warn span { color: var(--warn); }
+
+.trab-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.trab-seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: var(--surface); flex: none; }
+.trab-seg button { border: 0; border-radius: 0; background: transparent; color: var(--ink-2); padding: 7px 12px; font-size: 13px; box-shadow: none; }
+.trab-seg button + button { border-left: 1px solid var(--line-2); }
+.trab-seg button.on { background: var(--p-50); color: var(--p-700); font-weight: 600; }
+.trab-seg small { color: var(--muted); font-weight: 500; margin-left: 2px; }
+.trab-search { position: relative; flex: 1 1 220px; min-width: 0; }
+.trab-search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--subtle); pointer-events: none; }
+.trab-search input { margin-top: 0; padding-left: 34px; }
+.trab-check { display: inline-flex; gap: 6px; align-items: center; font-weight: 400; color: var(--ink-2); white-space: nowrap; }
+.trab-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.trab-tools button { display: inline-flex; align-items: center; gap: 6px; }
+.trab-nada { margin-bottom: 12px; }
+
+.trab-title { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.trab-title .badge { gap: 4px; }
+.trab-funcao { color: var(--p-700); font-weight: 600; }
+
+input.invalid, input[aria-invalid='true'] { border-color: var(--danger); }
+.field-hint.bad { color: var(--danger); }
+
+/* importação */
+.trab-import .notice { margin-bottom: 12px; }
+.trab-import textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; white-space: pre; overflow-x: auto; }
+.trab-import-input { margin-bottom: 12px; }
+.trab-import .field-hint .warn { color: var(--warn); }
+.trab-faltando { margin: 12px 0; padding: 10px 14px; border: 1px solid var(--warn-line); background: var(--warn-bg); border-radius: var(--radius); font-size: 13px; color: var(--ink-2); }
+.trab-radio { display: grid; gap: 6px; margin-top: 8px; }
+.trab-radio label { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+.trab-resumo { margin: 12px 0 8px; }
+.trab-table-wrap { overflow-x: auto; max-height: 50vh; overflow-y: auto; border-radius: 10px; }
+.trab-table td .badge { margin-left: 4px; }
+.trab-table td:nth-child(2) .badge { margin-left: 0; }
+.trab-table tr.erro td { background: var(--danger-bg); }
+.trab-obs { font-size: 12px; }
+.trab-obs .bad { color: var(--danger); }
+.trab-obs .warn { color: var(--warn); }
+
+@media (max-width: 900px) {
+  .trab-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trab-seg { width: 100%; }
+  .trab-seg button { flex: 1; padding: 9px 6px; }
+  .trab-search { flex-basis: 100%; }
+  .trab-search input { font-size: 16px; } /* evita zoom automático no iPhone */
+  .trab-tools { margin-left: 0; width: 100%; }
+  .trab-tools button { flex: 1; justify-content: center; }
+  .trab-view .entity-actions { width: 100%; }
+  .trab-view .entity-actions button { flex: 1; padding: 8px 10px; }
+
+  /* prévia da importação vira lista de cartões */
+  .trab-table-wrap { max-height: none; }
+  .trab-table, .trab-table tbody, .trab-table tr, .trab-table td { display: block; width: 100%; }
+  .trab-table { border: 0; }
+  .trab-table thead { display: none; }
+  .trab-table tr { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; padding: 6px 0; background: var(--surface); }
+  .trab-table tr.erro { background: var(--danger-bg); }
+  .trab-table td, .trab-table tr:last-child td { border: 0; padding: 3px 12px; display: grid; grid-template-columns: 84px 1fr; gap: 8px; background: transparent !important; }
+  .trab-table td::before { content: attr(data-label); color: var(--muted); font-size: 12px; }
+}

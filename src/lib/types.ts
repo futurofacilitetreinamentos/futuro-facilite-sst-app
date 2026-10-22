@@ -25,6 +25,9 @@ export interface Equipe {
   email: string
   /** Documentos que assina por padrão (migração 0003); ver lib/signatarios.ts */
   padrao?: string[]
+  /** CPF (só dígitos) e UF do conselho, usados no eSocial (migração 0005) */
+  cpf?: string
+  uf_conselho?: string
 }
 
 export interface Condominio {
@@ -231,6 +234,77 @@ export interface MedicaoAnterior {
   resultado: string
   limite: string
   unidade: string
+  observacoes: string
+}
+
+/** Trabalhador do condomínio (migração 0005). data_demissao preenchida = desligado. */
+export interface Trabalhador {
+  id: string
+  condominio_id: string
+  funcao_id: string | null
+  nome: string
+  /** só dígitos */
+  cpf: string
+  matricula: string
+  /** eSocial tabela 01 (101 = empregado geral) */
+  categoria: string
+  sexo: '' | 'M' | 'F'
+  data_nascimento: string | null
+  data_admissao: string | null
+  data_demissao: string | null
+  observacoes: string
+}
+
+export type TipoAso = 'admissional' | 'periodico' | 'retorno' | 'mudanca_risco' | 'demissional' | 'monitoracao'
+
+export const TIPOS_ASO: { value: TipoAso; label: string; esocial: string }[] = [
+  { value: 'admissional', label: 'Admissional', esocial: '0' },
+  { value: 'periodico', label: 'Periódico', esocial: '1' },
+  { value: 'retorno', label: 'Retorno ao trabalho', esocial: '2' },
+  { value: 'mudanca_risco', label: 'Mudança de risco', esocial: '3' },
+  { value: 'monitoracao', label: 'Monitoração pontual', esocial: '4' },
+  { value: 'demissional', label: 'Demissional', esocial: '9' },
+]
+
+export interface ExameAso {
+  /** eSocial tabela 27 */
+  codigo: string
+  nome: string
+  data: string
+  ordem: 'referencial' | 'sequencial'
+  resultado: '' | 'normal' | 'alterado' | 'estavel' | 'agravamento'
+}
+
+/** ASO realizado (migração 0005) — evento S-2220. */
+export interface Aso {
+  id: string
+  condominio_id: string
+  trabalhador_id: string
+  data: string
+  tipo: TipoAso
+  resultado: 'apto' | 'inapto'
+  medico_id: string | null
+  medico_nome: string
+  medico_crm: string
+  medico_uf: string
+  exames: ExameAso[]
+  /** PDF do ASO no bucket "fotos" */
+  arquivo: string | null
+  observacoes: string
+}
+
+/** Treinamento de NR por trabalhador (migração 0005). */
+export interface Treinamento {
+  id: string
+  condominio_id: string
+  trabalhador_id: string
+  nr: string
+  titulo: string
+  data: string | null
+  validade: string | null
+  carga_horaria: string
+  instrutor: string
+  arquivo: string | null
   observacoes: string
 }
 

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
-  BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileText, HardHat, History, House, KeyRound,
+  BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileSignature, FileText, GraduationCap, HardHat,
+  HeartPulse, History, House, IdCard, KeyRound, Send,
   Layers, ListChecks, LogOut, Menu, Plus, ShieldCheck, Sparkles, Stethoscope, TriangleAlert, Upload, UserRound, Users, X,
   type LucideIcon,
 } from 'lucide-react'
@@ -26,12 +27,19 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { to: '/epis', label: 'EPIs', icon: ShieldCheck, needsCondo: true },
     { to: '/plano', label: 'Plano de ação', icon: ListChecks, needsCondo: true },
   ] },
+  { group: 'Trabalhadores', items: [
+    { to: '/trabalhadores', label: 'Trabalhadores', icon: IdCard, needsCondo: true },
+    { to: '/asos', label: 'ASOs', icon: HeartPulse, needsCondo: true },
+    { to: '/treinamentos', label: 'Treinamentos', icon: GraduationCap, needsCondo: true },
+  ] },
   { group: 'Documentos', items: [
     { to: '/pgr', label: 'PGR / NR-1', icon: BookOpen, needsCondo: true },
     { to: '/drps', label: 'NR-1 / DRPS', icon: Brain, needsCondo: true },
     { to: '/pcmso', label: 'PCMSO', icon: Stethoscope, needsCondo: true },
     { to: '/ltcat', label: 'LTCAT', icon: Factory, needsCondo: true },
     { to: '/laudos', label: 'Laudos', icon: FileText, needsCondo: true },
+    { to: '/ordem-servico', label: 'Ordem de Serviço', icon: FileSignature, needsCondo: true },
+    { to: '/esocial', label: 'eSocial', icon: Send, needsCondo: true },
     { to: '/anteriores', label: 'Laudos anteriores', icon: History, needsCondo: true },
   ] },
   { group: 'Sistema', items: [
