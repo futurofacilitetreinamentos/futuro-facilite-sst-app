@@ -1,16 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PHOTO_BUCKET, must, supabase } from './supabase'
 import type {
-  Agendamento, Aso, Condominio, DocAnterior, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, MedicaoAnterior,
+  Agendamento, Aso, Condominio, ConfigEmpresa, Contrato, Proposta, Servico, DocAnterior, DocRevisao, DrpsResposta, Epi, Equipe, Funcao, Ghe, Inspecao, MedicaoAnterior,
   Profile, Risco, Setor, Trabalhador, Treinamento,
 } from './types'
 
 // Tabelas filhas de um condomínio, todas com a coluna condominio_id
 export type ChildTable =
   | 'setores' | 'funcoes' | 'riscos' | 'agendamentos' | 'inspecoes' | 'drps_respostas' | 'doc_revisoes' | 'epis'
-  | 'docs_anteriores' | 'medicoes_anteriores' | 'trabalhadores' | 'asos' | 'treinamentos'
+  | 'docs_anteriores' | 'medicoes_anteriores' | 'trabalhadores' | 'asos' | 'treinamentos' | 'propostas' | 'contratos'
 
 type ChildRow = {
+  propostas: Proposta
+  contratos: Contrato
   trabalhadores: Trabalhador
   asos: Aso
   treinamentos: Treinamento
@@ -40,6 +42,24 @@ const ORDER: Record<ChildTable, { column: string; ascending: boolean }> = {
   trabalhadores: { column: 'nome', ascending: true },
   asos: { column: 'data', ascending: false },
   treinamentos: { column: 'data', ascending: false },
+  propostas: { column: 'created_at', ascending: false },
+  contratos: { column: 'created_at', ascending: false },
+}
+
+/** Dados da contratada e parâmetros comerciais (linha única). */
+export function useConfigEmpresa() {
+  return useQuery({
+    queryKey: ['config_empresa'],
+    queryFn: async () => must(await supabase.from('config_empresa').select('*').eq('id', 1).maybeSingle()) as ConfigEmpresa | null,
+  })
+}
+
+/** Tabela de serviços (ativos e inativos), na ordem definida. */
+export function useServicos() {
+  return useQuery({
+    queryKey: ['servicos'],
+    queryFn: async () => must(await supabase.from('servicos').select('*').order('ordem').order('nome')) as Servico[],
+  })
 }
 
 // ---------------------------------------------------------------------------

@@ -13,6 +13,8 @@ import OrdemServicoPage from './pages/OrdemServicoPage'
 import TrabalhadoresPage from './pages/TrabalhadoresPage'
 import TreinamentosPage from './pages/TreinamentosPage'
 import CondominioPage from './pages/CondominioPage'
+import ComercialPage from './pages/ComercialPage'
+import ConfiguracoesPage from './pages/ConfiguracoesPage'
 import ContaPage from './pages/ContaPage'
 import Dashboard from './pages/Dashboard'
 import { DrpsPage, LaudosPage, LtcatPage, PcmsoPage, PgrPage, PlanoPage } from './pages/DocPages'
@@ -58,6 +60,7 @@ function Private() {
         <Route element={<Layout />}>
           <Route index element={g(<Dashboard />)} />
           <Route path="condominio" element={g(<CondominioPage />)} />
+          <Route path="comercial" element={g(<ComercialPage />)} />
           <Route path="agenda" element={g(<AgendaPage />)} />
           <Route path="inspecao" element={g(<InspecaoList />)} />
           <Route path="inspecao/nova" element={g(<InspecaoForm key="nova" />)} />
@@ -81,6 +84,7 @@ function Private() {
           <Route path="ordem-servico" element={g(<OrdemServicoPage />)} />
           <Route path="esocial" element={g(<EsocialPage />)} />
           <Route path="equipe" element={<EquipePage />} />
+          <Route path="configuracoes" element={<ConfiguracoesPage />} />
           <Route path="importar" element={<ImportarPage />} />
           <Route path="conta" element={<ContaPage />} />
           <Route path="*" element={<div className="view"><div className="empty">Página não encontrada.</div></div>} />

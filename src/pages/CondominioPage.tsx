@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { HandCoins } from 'lucide-react'
 import { CrudSection } from '../components/CrudSection'
 import { ErrorBox, Field, PanelHead, fmtDate, maskCep, maskCnpj, type FieldDef } from '../components/ui'
 import { useChildren, useEquipe, useRemove, useSave } from '../lib/db'
@@ -7,6 +8,8 @@ import { DOCUMENTOS_REVISAO, type Condominio, type DocRevisao, type EquipeTipo }
 import { DOCS_ASSINATURA, padraoDe, signatario } from '../lib/signatarios'
 import { useCondo } from '../state/CondoProvider'
 import { useAuth } from '../auth/AuthProvider'
+import { cpfError, formatCpf, onlyDigits } from '../lib/cpf'
+import '../styles/comercial.css'
 
 type Form = Omit<Condominio, 'id' | 'drps_token' | 'legacy_id' | 'updated_at' | 'num_trabalhadores'> & {
   id?: string
@@ -20,7 +23,7 @@ const blank = (): Form => ({
   // assinantes vazios = usa o padrão marcado na Equipe técnica (lib/signatarios.ts)
   resp_sst_id: null, aux_sst_id: null, inspecao_rt_id: null, nr1_rt_id: null, medico_id: null, ltcat_rt_id: null,
   engenheiro_id: null,
-  cep: '', cidade_uf: 'Brasília-DF', ltcat_rt: 'medico',
+  cep: '', cidade_uf: 'Brasília-DF', ltcat_rt: 'medico', sindico_cpf: '',
 })
 
 const FIELDS: FieldDef<Form>[] = [
@@ -53,6 +56,8 @@ export default function CondominioPage() {
   const novo = params.get('novo') === '1' || !condo
   const [form, setForm] = useState<Form>(blank)
   const [ok, setOk] = useState('')
+  const [cpfMsg, setCpfMsg] = useState('')
+  const { data: propostas = [] } = useChildren('propostas', novo ? null : condo?.id)
 
   useEffect(() => {
     if (novo) setForm(blank())
@@ -61,13 +66,26 @@ export default function CondominioPage() {
   }, [novo, condo?.id, condo?.updated_at])
 
   const set = (k: keyof Form, v: string | null) =>
-    setForm((f) => ({ ...f, [k]: k === 'cnpj' && v ? maskCnpj(v) : k === 'cep' && v ? maskCep(v) : v }))
+    setForm((f) => ({
+      ...f,
+      [k]: k === 'cnpj' && v ? maskCnpj(v) : k === 'cep' && v ? maskCep(v) : k === 'sindico_cpf' ? onlyDigits(v).slice(0, 11) : v,
+    }))
+  const erroCpf = cpfError(form.sindico_cpf)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    const { id, num_trabalhadores, ...rest } = form
+    const { id, num_trabalhadores, sindico_cpf: cpfForm, ...rest } = form
+    const cpf = onlyDigits(cpfForm)
+    if (cpfError(cpf)) {
+      setCpfMsg('CPF do síndico: ' + cpfError(cpf))
+      return
+    }
+    setCpfMsg('')
+    // só envia o CPF se a coluna existir (migração 0006), para o cadastro continuar salvando antes dela
+    const temColuna = !novo && condo ? 'sindico_cpf' in condo : false
     const row: Partial<Condominio> = {
       ...rest,
+      ...(cpf || temColuna ? { sindico_cpf: cpf } : {}),
       id: novo ? undefined : id,
       num_trabalhadores: num_trabalhadores === '' ? null : Number(num_trabalhadores),
       data_elaboracao: rest.data_elaboracao || null,
@@ -99,12 +117,33 @@ export default function CondominioPage() {
         <div className="notice">
           Estes dados alimentam a inspeção, o PGR, PCMSO, LTCAT e o DRPS. Os demais módulos ficam liberados depois que a razão social é salva.
         </div>
-        <ErrorBox error={save.error} />
+        <ErrorBox error={save.error || cpfMsg || null} />
         {ok && <div className="ok-box">{ok}</div>}
+        {!novo && condo && (
+          <div className="com-cta">
+            <p>
+              <b>Proposta comercial</b>{' '}
+              {propostas.length ? `— ${propostas.length} orçamento(s) para este condomínio.` : '— gere o orçamento com os serviços e valores à vista e a prazo.'}
+            </p>
+            <div className="actions">
+              {propostas.length > 0 && <Link to="/comercial">Ver orçamentos ({propostas.length})</Link>}
+              <button type="button" className="primary" onClick={() => nav('/comercial?novo=1')}>
+                <HandCoins size={16} aria-hidden="true" /> {propostas.length ? 'Novo orçamento' : 'Gerar orçamento'}
+              </button>
+            </div>
+          </div>
+        )}
         <div className="form-grid two">
           {FIELDS.map((f) => (
             <Field key={f.key} def={f} value={form[f.key]} onChange={(v) => set(f.key, v)} />
-          ))}
+          )).flatMap((el, i) => FIELDS[i].key !== 'responsavel_empresa' ? [el] : [el, (
+            <label key="sindico_cpf">
+              CPF do síndico
+              <input value={formatCpf(form.sindico_cpf)} inputMode="numeric" placeholder="000.000.000-00" maxLength={14} autoComplete="off"
+                aria-invalid={erroCpf ? true : undefined} onChange={(e) => set('sindico_cpf', e.target.value)} />
+              {erroCpf ? <span className="field-hint bad">{erroCpf}</span> : <span className="field-hint">Usado no contrato (qualificação do contratante).</span>}
+            </label>
+          )])}
         </div>
         <h3 style={{ marginTop: 24 }}>Quem assina os documentos</h3>
         <p className="entity-meta" style={{ margin: '0 0 12px' }}>

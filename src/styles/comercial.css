@@ -1,0 +1,110 @@
+/* Área comercial (src/pages/ComercialPage.tsx, ConfiguracoesPage.tsx) */
+
+.com-view .panel + .panel, .com-view .com-pend + .panel, .com-view .notice + .panel { margin-top: 16px; }
+.com-h3 { margin: 22px 0 10px; font-size: 14px; font-weight: 600; color: var(--p-700); }
+.com-title { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.com-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+.com-label { display: block; font-size: 12.5px; font-weight: 500; color: var(--ink-2); margin-bottom: 6px; }
+
+/* aviso de dados faltando no contrato */
+.com-pend {
+  display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; margin-bottom: 14px;
+  border: 1px solid var(--warn-line); background: var(--warn-bg); color: var(--ink-2); border-radius: var(--radius); font-size: 13px;
+}
+.com-pend svg { color: var(--warn); flex: none; margin-top: 2px; }
+.com-pend b { color: var(--warn); }
+
+/* editores de lista (condições, cláusulas, objeto do contrato) */
+.com-list { display: grid; gap: 8px; justify-items: start; }
+.com-list > .empty { width: 100%; }
+.com-list-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 6px; align-items: start; width: 100%; }
+.com-list-n { font-size: 12.5px; color: var(--muted); padding-top: 9px; text-align: right; }
+.com-list-row textarea { margin-top: 0; min-height: 0; }
+.com-row-tools { display: flex; gap: 2px; }
+.com-row-tools button { padding: 6px; }
+.com-del:hover:not(:disabled) { color: var(--danger) !important; background: var(--danger-bg) !important; }
+.com-clausula { width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; background: var(--soft); display: grid; gap: 8px; }
+.com-clausula-head { display: flex; gap: 6px; align-items: center; }
+.com-clausula-head input { margin-top: 0; font-weight: 600; }
+.com-clausula textarea { margin-top: 0; }
+.com-marcadores { margin: 0 0 12px; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; background: var(--soft); font-size: 13px; }
+.com-marcadores summary { cursor: pointer; font-weight: 500; color: var(--ink-2); }
+.com-marcadores dl { margin: 8px 0 0; display: grid; gap: 4px; }
+.com-marcadores dl > div { display: grid; grid-template-columns: minmax(170px, auto) 1fr; gap: 10px; }
+.com-marcadores dt code { font-size: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+.com-marcadores dd { margin: 0; color: var(--muted); }
+
+/* editor do orçamento */
+.com-editor .form-grid label input, .com-editor .form-grid label select { width: 100%; }
+.com-items { display: grid; gap: 8px; margin-bottom: 10px; }
+.com-item {
+  display: grid; grid-template-columns: minmax(0, 1fr) 96px 130px 110px; gap: 10px; align-items: end;
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; background: var(--surface);
+}
+.com-item.avulso { grid-template-columns: minmax(0, 1fr) 96px 130px 110px auto; }
+.com-item.on { border-color: var(--p-100); background: var(--p-50); }
+.com-item-main { display: flex; gap: 10px; align-items: flex-start; align-self: center; font-weight: 400; min-width: 0; }
+.com-item-main > span { display: grid; gap: 2px; min-width: 0; }
+.com-item-main b { font-weight: 600; color: var(--ink); font-size: 13.5px; }
+.com-item-main small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.com-item-main input[type='checkbox'] { margin-top: 3px; width: 17px; height: 17px; flex: none; }
+.com-item.avulso .com-item-main { flex-direction: column; align-items: stretch; gap: 6px; }
+.com-item.avulso .com-item-main input { margin-top: 0; }
+.com-item label { font-size: 12px; }
+.com-item label small { font-weight: 400; color: var(--muted); }
+.com-item label input { margin-top: 4px; }
+.com-item-total { text-align: right; padding-bottom: 8px; }
+.com-item-total span { display: block; font-size: 12px; color: var(--muted); }
+.com-item-total b { font-size: 14px; color: var(--ink); white-space: nowrap; }
+.com-item .com-del { align-self: center; padding: 6px; }
+
+.com-totais { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.com-totais > div { flex: 1 1 140px; border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; background: var(--soft); }
+.com-totais span { display: block; font-size: 12px; color: var(--muted); }
+.com-totais b { display: block; font-size: 18px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.com-totais small { font-size: 12.5px; color: var(--p-700); font-weight: 500; }
+.com-totais > div.main { background: var(--p-50); border-color: var(--p-100); }
+.com-totais > div.main b { color: var(--p-700); }
+
+.com-cond-padrao { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 10px 14px; }
+.com-cond-padrao p { margin: 0 0 6px; }
+.com-cond-padrao ol { margin: 0 0 10px; padding-left: 20px; font-size: 13px; color: var(--ink-2); display: grid; gap: 4px; }
+.com-obs { margin-top: 18px; }
+.com-editor-actions { margin-top: 18px; justify-content: flex-end; }
+
+.com-radio { display: grid; gap: 8px; }
+.com-radio label { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 10px 12px; font-weight: 400; font-size: 13.5px; cursor: pointer; }
+.com-radio label.on { border-color: var(--p); background: var(--p-50); }
+.com-check { display: flex; gap: 8px; align-items: center; font-weight: 400; align-self: end; padding-bottom: 10px; }
+
+.com-seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.com-seg button { border: 0; border-radius: 0; background: transparent; color: var(--ink-2); padding: 7px 16px; font-size: 13px; box-shadow: none; }
+.com-seg button + button { border-left: 1px solid var(--line-2); }
+.com-seg button.on { background: var(--p-50); color: var(--p-700); font-weight: 600; }
+
+.com-status-select { width: auto; margin-top: 0; padding: 5px 8px; font-size: 12.5px; }
+
+/* chamada no cadastro do condomínio */
+.com-cta {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  margin: 0 0 16px; padding: 12px 16px; border: 1px solid var(--p-100); background: var(--p-50); border-radius: var(--radius);
+}
+.com-cta p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.com-cta p b { color: var(--p-700); }
+.com-cta .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* painel com 5 etapas */
+.pipeline.five { grid-template-columns: repeat(5, 1fr); }
+
+@media (max-width: 900px) {
+  .pipeline.five { grid-template-columns: 1fr; }
+  .com-item, .com-item.avulso { grid-template-columns: 1fr 1fr; }
+  .com-item-main { grid-column: 1 / -1; }
+  .com-item-total { grid-column: 1 / -1; text-align: left; padding-bottom: 0; display: flex; gap: 8px; align-items: baseline; }
+  .com-item.avulso .com-del { grid-column: 1 / -1; justify-self: end; }
+  .com-editor input, .com-editor select, .com-editor textarea { font-size: 16px; } /* evita zoom automático no iPhone */
+  .com-marcadores dl > div { grid-template-columns: 1fr; gap: 0; }
+  .com-editor-actions button { flex: 1; }
+  .com-view .entity-actions { width: 100%; }
+  .com-cta .actions, .com-cta .actions button { width: 100%; }
+}

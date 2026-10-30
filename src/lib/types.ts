@@ -44,6 +44,8 @@ export interface Condominio {
   email_empresa: string
   data_elaboracao: string | null
   atividade_empresa: string
+  /** CPF do síndico, para o contrato (migração 0006) */
+  sindico_cpf?: string
   resp_sst_id: string | null
   /** Assinantes escolhidos para este condomínio (migração 0003); vazio = padrão da equipe */
   aux_sst_id: string | null
@@ -305,6 +307,109 @@ export interface Treinamento {
   carga_horaria: string
   instrutor: string
   arquivo: string | null
+  observacoes: string
+}
+
+// ---------------------------------------------------------------------------
+// Comercial (migração 0006)
+// ---------------------------------------------------------------------------
+
+/** Cláusula de contrato: título + texto com marcadores {{...}} (ver reports/comercial-texts.ts). */
+export interface ClausulaContrato {
+  titulo: string
+  texto: string
+}
+
+/** Dados da CONTRATADA e parâmetros comerciais (linha única, id = 1). */
+export interface ConfigEmpresa {
+  id: 1
+  razao_social: string
+  nome_fantasia: string
+  cnpj: string
+  endereco: string
+  cep: string
+  cidade_uf: string
+  representante_nome: string
+  representante_rg: string
+  representante_cpf: string
+  email: string
+  telefone: string
+  acrescimo_prazo_pct: number
+  parcelas_prazo: number
+  validade_proposta_dias: number
+  dia_vencimento: number
+  vigencia_meses: number
+  foro: string
+  /** null = texto padrão do sistema */
+  condicoes_proposta: string[] | null
+  clausulas_contrato: ClausulaContrato[] | null
+}
+
+export type UnidadeServico = 'fixo' | 'por_colaborador'
+
+export interface Servico {
+  id: string
+  nome: string
+  descricao_proposta: string
+  descricao_contrato: string
+  unidade: UnidadeServico
+  preco: number
+  ordem: number
+  ativo: boolean
+}
+
+export interface ItemProposta {
+  servico_id: string | null
+  nome: string
+  descricao_proposta: string
+  descricao_contrato: string
+  unidade: UnidadeServico
+  quantidade: number
+  preco_unit: number
+  total: number
+}
+
+export type StatusProposta = 'rascunho' | 'enviada' | 'aprovada' | 'recusada'
+
+export interface Proposta {
+  id: string
+  condominio_id: string
+  numero: string | null
+  data: string
+  validade: string | null
+  colaboradores: number
+  itens: ItemProposta[]
+  desconto: number
+  valor_avista: number
+  acrescimo_pct: number
+  parcelas: number
+  valor_prazo: number
+  forma_escolhida: 'avista' | 'prazo' | null
+  condicoes: string[] | null
+  observacoes: string
+  status: StatusProposta
+  enviada_em: string | null
+  aprovada_em: string | null
+}
+
+export type StatusContrato = 'rascunho' | 'emitido' | 'assinado' | 'encerrado'
+
+export interface Contrato {
+  id: string
+  condominio_id: string
+  proposta_id: string | null
+  numero: string | null
+  data_assinatura: string | null
+  vigencia_meses: number
+  colaboradores: number
+  /** itens do objeto (Cláusula Primeira), já com os marcadores resolvidos ou não */
+  servicos: string[]
+  valor_total: number
+  parcelas: number
+  valor_parcela: number
+  dia_vencimento: number
+  clausulas: ClausulaContrato[] | null
+  status: StatusContrato
   observacoes: string
 }
 

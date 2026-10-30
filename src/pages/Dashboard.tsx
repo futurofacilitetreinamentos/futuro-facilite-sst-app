@@ -4,6 +4,8 @@ import { fmtDate } from '../components/ui'
 import { AlertasPanel } from '../components/AlertasPanel'
 import { useChildren, useGhes } from '../lib/db'
 import { useCondo } from '../state/CondoProvider'
+import { STATUS_CONTRATO, STATUS_PROPOSTA } from '../lib/comercial'
+import '../styles/comercial.css'
 
 export default function Dashboard() {
   const { condo } = useCondo()
@@ -15,6 +17,8 @@ export default function Dashboard() {
   const { data: riscos = [] } = useChildren('riscos', id)
   const { data: agenda = [] } = useChildren('agendamentos', id)
   const { data: inspecoes = [] } = useChildren('inspecoes', id)
+  const propQ = useChildren('propostas', id)
+  const contQ = useChildren('contratos', id)
 
   if (!condo) {
     return (
@@ -33,16 +37,29 @@ export default function Dashboard() {
 
   const proxima = agenda.filter((a) => a.status === 'agendada').sort((a, b) => a.data.localeCompare(b.data))[0]
   const altos = riscos.filter((r) => r.prob * r.sev >= 10).length
+  // etapa comercial: só aparece quando as tabelas existem (migração 0006)
+  const propostas = propQ.data ?? []
+  const contratos = contQ.data ?? []
+  const contrato = contratos.find((c) => c.status === 'assinado') ?? contratos.find((c) => c.status === 'emitido')
+  const ultima = propostas[0]
+  const comercial = propQ.error || contQ.error || propQ.isLoading ? null : {
+    key: 'comercial', titulo: propostas.length ? 'Orçamento e contrato' : 'Gerar orçamento', done: Boolean(contrato),
+    desc: contrato ? `Contrato ${contrato.numero ?? ''} ${STATUS_CONTRATO[contrato.status].label.toLowerCase()}`
+      : ultima ? `Orçamento ${ultima.numero ?? ''}: ${STATUS_PROPOSTA[ultima.status].label.toLowerCase()}` : 'Proposta à vista e a prazo',
+    to: propostas.length ? '/comercial' : '/comercial?novo=1',
+  }
   const steps = [
     // sem funções ainda: o caminho mais rápido é montar pelo modelo de condomínio
     { key: 'cadastro', titulo: 'Cadastro', done: Boolean(condo.razao_social && setores.length && funcoes.length),
       desc: funcoes.length ? 'Condomínio, setores e funções' : 'Monte pelo modelo de condomínio',
       to: funcoes.length ? '/condominio' : '/modelo' },
+    ...(comercial ? [comercial] : []),
     { key: 'agenda', titulo: 'Agendamento', done: agenda.some((a) => a.status !== 'cancelada'), desc: proxima ? `Próxima visita ${fmtDate(proxima.data)}` : 'Agendar visita técnica', to: '/agenda' },
     { key: 'inspecao', titulo: 'Inspeção', done: inspecoes.length > 0, desc: inspecoes[0] ? `Última: ${inspecoes[0].numero}` : 'Checklist em campo', to: proxima ? `/inspecao/nova?agenda=${proxima.id}` : '/inspecao/nova' },
     { key: 'laudos', titulo: 'Laudos', done: inspecoes.length > 0 && riscos.length > 0, desc: 'PGR, DRPS, PCMSO, LTCAT', to: '/laudos' },
   ]
-  const now = steps.find((s) => !s.done)
+  // sem orçamento ainda, a próxima ação é gerá-lo (logo depois do cadastro do condomínio)
+  const now = comercial && !propostas.length && condo.razao_social ? comercial : steps.find((s) => !s.done)
 
   return (
     <div className="view">
@@ -52,12 +69,12 @@ export default function Dashboard() {
           <h2>{condo.nome_fantasia || condo.razao_social}</h2>
           <p>{[condo.cnpj, condo.endereco, condo.responsavel_empresa && `Síndico(a): ${condo.responsavel_empresa}`].filter(Boolean).join(' · ')}</p>
         </div>
-        <div className="hero-badge" style={{ '--pct': `${(steps.filter((s) => s.done).length / 4) * 100}%` } as React.CSSProperties}>
-          <div className="hb-in">{steps.filter((s) => s.done).length}/4<span>etapas concluídas</span></div>
+        <div className="hero-badge" style={{ '--pct': `${(steps.filter((s) => s.done).length / steps.length) * 100}%` } as React.CSSProperties}>
+          <div className="hb-in">{steps.filter((s) => s.done).length}/{steps.length}<span>etapas concluídas</span></div>
         </div>
       </div>
 
-      <div className="pipeline">
+      <div className={'pipeline' + (steps.length === 5 ? ' five' : '')}>
         {steps.map((s, i) => (
           <button key={s.key} className={'step ' + (s.done ? 'done' : s === now ? 'now' : 'wait')} onClick={() => nav(s.to)}>
             <b>ETAPA {i + 1}</b>

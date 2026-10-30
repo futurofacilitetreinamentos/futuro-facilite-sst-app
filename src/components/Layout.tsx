@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   BookOpen, Brain, Building2, CalendarDays, ClipboardCheck, Factory, FileSignature, FileText, GraduationCap, HardHat,
-  HeartPulse, History, House, IdCard, KeyRound, Send,
+  HandCoins, HeartPulse, History, House, IdCard, KeyRound, Send, Settings,
   Layers, ListChecks, LogOut, Menu, Plus, ShieldCheck, Sparkles, Stethoscope, TriangleAlert, Upload, UserRound, Users, X,
   type LucideIcon,
 } from 'lucide-react'
@@ -15,6 +15,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   { group: 'Atendimento', items: [
     { to: '/', label: 'Atendimento', icon: House },
     { to: '/condominio', label: 'Condomínio', icon: Building2 },
+    { to: '/comercial', label: 'Orçamento e contrato', icon: HandCoins, needsCondo: true },
     { to: '/agenda', label: 'Agenda', icon: CalendarDays, needsCondo: true },
     { to: '/inspecao', label: 'Inspeção SST', icon: ClipboardCheck, needsCondo: true },
   ] },
@@ -44,6 +45,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   ] },
   { group: 'Sistema', items: [
     { to: '/equipe', label: 'Equipe técnica', icon: UserRound },
+    { to: '/configuracoes', label: 'Configurações', icon: Settings },
     { to: '/importar', label: 'Importar dados V8', icon: Upload },
     { to: '/conta', label: 'Minha conta', icon: KeyRound },
   ] },

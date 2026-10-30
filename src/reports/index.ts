@@ -43,6 +43,11 @@ export type { PrintOptions } from './print';
 export { buildOrdemServico, ordemServicoTargets, trabalhadorAtivo, fmtCpf } from './os-doc';
 export type { OrdemServicoOpts } from './os-doc';
 
+export { buildProposta, buildContrato } from './comercial-doc';
+export { CONDICOES_PROPOSTA_PADRAO, CLAUSULAS_CONTRATO_PADRAO, MARCADORES_CONTRATO, MARCADORES_PROPOSTA, QUALIFICACAO_CONTRATO_PADRAO } from './comercial-texts';
+export type { PropostaDocData, ContratoDocData, ClienteComercial } from './comercial-types';
+export { numeroExtenso, valorExtenso, formatBRL, numeroComExtenso, valorComExtenso, ordinalFeminino } from './extenso';
+
 export { riskLevel, riskScore, te, teNome, pd, pdNome, gr, grNome, grByScore, GR_MATRIX } from './risk';
 export type { RiskLevel, RiskLevelLabel, RiskLevelClass, TeCode, PdCode, GrCode } from './risk';
 
