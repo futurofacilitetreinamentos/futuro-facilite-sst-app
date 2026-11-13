@@ -379,7 +379,10 @@ export interface Proposta {
   validade: string | null
   colaboradores: number
   itens: ItemProposta[]
+  /** desconto fixo em reais, somado ao percentual */
   desconto: number
+  /** percentual sobre o subtotal, somado ao desconto em reais */
+  desconto_pct: number
   valor_avista: number
   acrescimo_pct: number
   parcelas: number

@@ -140,7 +140,7 @@ Parágrafo Segundo. Eventual reajuste somente poderá ser aplicado após o perí
     texto: `O contrato poderá ser rescindido:
 # por acordo entre as partes;
 # por descumprimento contratual;
-# mediante comunicação escrita com antecedência mínima de 30 (trinta) dias.
+# mediante comunicação escrita com antecedência mínima de 60 (sessenta) dias.
 Caso a rescisão seja solicitada pela CONTRATANTE após a elaboração dos documentos técnicos previstos neste contrato, permanecerão devidos os valores correspondentes aos serviços efetivamente executados, observada a proporcionalidade entre as obrigações cumpridas e o valor contratado.
 As parcelas vencidas permanecerão integralmente exigíveis.`,
   },

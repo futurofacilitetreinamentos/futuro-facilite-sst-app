@@ -41,6 +41,11 @@ const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' 
 /** R$ 1.234,56 */
 export const fmtBRL = (n: number) => BRL.format(round2(n))
 
+/** 10 ou 10,5 — sem o símbolo de %. */
+export function fmtPct(n: number): string {
+  return round2(n).toLocaleString('pt-BR', { maximumFractionDigits: 2 })
+}
+
 export function itemTotal(quantidade: number, precoUnit: number): number {
   return round2(quantidade * precoUnit)
 }
@@ -66,6 +71,13 @@ export function valorParcela(total: number, parcelas: number): number {
 
 export interface Totais {
   subtotal: number
+  /** percentual digitado */
+  descontoPct: number
+  /** reais do percentual, calculados sobre o subtotal */
+  descontoPorPct: number
+  /** desconto fixo em reais */
+  descontoFixo: number
+  /** soma dos dois descontos */
   desconto: number
   avista: number
   prazo: number
@@ -73,14 +85,23 @@ export interface Totais {
   parcela: number
 }
 
+/** Os dois descontos se somam: percentual do subtotal + valor fixo em reais. */
 export function calcTotais(
   itens: Pick<ItemProposta, 'quantidade' | 'preco_unit'>[], desconto: number, acrescimoPct: number, parcelas: number,
+  descontoPct = 0,
 ): Totais {
   const sub = subtotal(itens)
-  const avista = valorAvista(sub, desconto)
+  const pct = round2(Math.max(0, descontoPct))
+  const descontoPorPct = round2(sub * pct / 100)
+  const descontoFixo = round2(Math.max(0, desconto))
+  const desc = round2(descontoPorPct + descontoFixo)
+  const avista = valorAvista(sub, desc)
   const prazo = valorPrazo(avista, acrescimoPct)
   const n = Math.max(1, Math.trunc(parcelas) || 1)
-  return { subtotal: sub, desconto: round2(desconto), avista, prazo, parcelas: n, parcela: valorParcela(prazo, n) }
+  return {
+    subtotal: sub, descontoPct: pct, descontoPorPct, descontoFixo, desconto: desc,
+    avista, prazo, parcelas: n, parcela: valorParcela(prazo, n),
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -281,6 +302,7 @@ export function buildPropostaDocData(
     colaboradores: parseNum(p.colaboradores),
     itens: withTotals(p.itens ?? []),
     desconto: round2(parseNum(p.desconto)),
+    descontoPct: round2(Math.max(0, parseNum(p.desconto_pct))),
     valorAvista: round2(parseNum(p.valor_avista)),
     acrescimoPct: parseNum(p.acrescimo_pct),
     parcelas: Math.max(1, Math.trunc(parseNum(p.parcelas)) || 1),

@@ -28,7 +28,10 @@ export interface PropostaDocData {
   validade: string;
   colaboradores: number;
   itens: ItemProposta[];
+  /** desconto fixo em reais */
   desconto: number;
+  /** percentual sobre o subtotal, somado ao desconto em reais */
+  descontoPct: number;
   valorAvista: number;
   acrescimoPct: number;
   parcelas: number;

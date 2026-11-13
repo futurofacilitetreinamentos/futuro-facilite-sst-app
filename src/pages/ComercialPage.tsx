@@ -4,7 +4,7 @@ import { AlertTriangle, Copy, FileSignature, Plus, Trash2 } from 'lucide-react'
 import { DocButtons } from '../components/DocPreview'
 import { ErrorBox, Loading, Modal, PanelHead, fmtDate } from '../components/ui'
 import {
-  addDays, buildContratoDocData, buildPropostaDocData, calcTotais, contratoFromProposta, fmtBRL, itemFromServico, normConfig,
+  addDays, buildContratoDocData, buildPropostaDocData, calcTotais, contratoFromProposta, fmtBRL, fmtPct, itemFromServico, normConfig,
   parseIntMin, parseNum, pendenciasContrato, resolveCondicoes, round2, STATUS_CONTRATO, STATUS_PROPOSTA, todayIso, valoresDaForma,
   valorParcela, withTotals, type FormaPagamento,
 } from '../lib/comercial'
@@ -49,6 +49,7 @@ interface PropDraft {
   colaboradores: string
   itens: EdItem[]
   desconto: string
+  desconto_pct: string
   acrescimo_pct: string
   parcelas: string
   condicoes: string[] | null
@@ -78,7 +79,7 @@ function newDraft(condo: Condominio, cfg: ConfigEmpresa, servicos: Servico[]): P
   return {
     numero: null, data, validade: addDays(data, cfg.validade_proposta_dias), validadeAuto: true, colaboradores: String(colab),
     itens: servicos.filter((s) => s.ativo).map((s) => fromServico(s, colab, parseNum(s.preco) > 0)),
-    desconto: '0', acrescimo_pct: String(cfg.acrescimo_prazo_pct), parcelas: String(cfg.parcelas_prazo),
+    desconto: '0', desconto_pct: '0', acrescimo_pct: String(cfg.acrescimo_prazo_pct), parcelas: String(cfg.parcelas_prazo),
     condicoes: null, observacoes: '',
   }
 }
@@ -100,7 +101,8 @@ function draftFromProposta(p: Proposta, cfg: ConfigEmpresa, servicos: Servico[])
   return {
     id: p.id, numero: p.numero, data: p.data, validade: p.validade ?? '',
     validadeAuto: !p.validade || p.validade === addDays(p.data, cfg.validade_proposta_dias),
-    colaboradores: String(colab), itens: rows, desconto: String(p.desconto ?? 0), acrescimo_pct: String(p.acrescimo_pct ?? 0),
+    colaboradores: String(colab), itens: rows, desconto: String(p.desconto ?? 0), desconto_pct: String(p.desconto_pct ?? 0),
+    acrescimo_pct: String(p.acrescimo_pct ?? 0),
     parcelas: String(p.parcelas ?? 1), condicoes: p.condicoes ?? null, observacoes: p.observacoes ?? '',
   }
 }
@@ -113,7 +115,9 @@ const selectedItems = (d: PropDraft): ItemProposta[] =>
   })))
 
 function draftTotais(d: PropDraft) {
-  return calcTotais(selectedItems(d), parseNum(d.desconto), parseNum(d.acrescimo_pct), parseIntMin(d.parcelas, 1, 1))
+  return calcTotais(
+    selectedItems(d), parseNum(d.desconto), parseNum(d.acrescimo_pct), parseIntMin(d.parcelas, 1, 1), parseNum(d.desconto_pct),
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -165,7 +169,8 @@ function PropostaEditor({ initial, condo, cfg, onClose }: {
       validade: d.validade || null,
       colaboradores: colab,
       itens,
-      desconto: t.desconto,
+      desconto: t.descontoFixo,
+      desconto_pct: t.descontoPct,
       valor_avista: t.avista,
       acrescimo_pct: round2(parseNum(d.acrescimo_pct)),
       parcelas: t.parcelas,
@@ -255,7 +260,11 @@ function PropostaEditor({ initial, condo, cfg, onClose }: {
         <button type="button" className="outline small" onClick={addAvulso}><Plus size={14} aria-hidden="true" /> Item avulso</button>
 
         <h3 className="com-h3">Valores</h3>
-        <div className="form-grid three">
+        <div className="form-grid two">
+          <label>Desconto (%)
+            <input type="number" min={0} max={100} step="0.01" inputMode="decimal" value={d.desconto_pct} onChange={(e) => set({ desconto_pct: e.target.value })} />
+            <span className="field-hint">Sobre o subtotal, somado ao desconto em R$</span>
+          </label>
           <label>Desconto (R$)<input type="number" min={0} step="0.01" inputMode="decimal" value={d.desconto} onChange={(e) => set({ desconto: e.target.value })} /></label>
           <label>Acréscimo a prazo (%)<input type="number" min={0} step="0.01" inputMode="decimal" value={d.acrescimo_pct} onChange={(e) => set({ acrescimo_pct: e.target.value })} />
             <span className="field-hint">Padrão: {cfg.acrescimo_prazo_pct}%</span></label>
@@ -264,7 +273,8 @@ function PropostaEditor({ initial, condo, cfg, onClose }: {
         </div>
         <div className="com-totais">
           <div><span>Subtotal</span><b>{fmtBRL(t.subtotal)}</b></div>
-          {t.desconto > 0 && <div><span>Desconto</span><b>− {fmtBRL(t.desconto)}</b></div>}
+          {t.descontoPorPct > 0 && <div><span>Desconto ({fmtPct(t.descontoPct)}%)</span><b>− {fmtBRL(t.descontoPorPct)}</b></div>}
+          {t.descontoFixo > 0 && <div><span>Desconto</span><b>− {fmtBRL(t.descontoFixo)}</b></div>}
           <div className="main"><span>À vista</span><b>{fmtBRL(t.avista)}</b></div>
           <div className="main"><span>A prazo</span><b>{fmtBRL(t.prazo)}</b><small>{t.parcelas}× de {fmtBRL(t.parcela)}</small></div>
         </div>
@@ -572,7 +582,8 @@ export default function ComercialPage() {
     const data = todayIso()
     const copia: Partial<Proposta> = {
       condominio_id: p.condominio_id, data, validade: addDays(data, cfg.validade_proposta_dias), colaboradores: p.colaboradores,
-      itens: p.itens, desconto: p.desconto, valor_avista: p.valor_avista, acrescimo_pct: p.acrescimo_pct, parcelas: p.parcelas,
+      itens: p.itens, desconto: p.desconto, desconto_pct: p.desconto_pct ?? 0, valor_avista: p.valor_avista,
+      acrescimo_pct: p.acrescimo_pct, parcelas: p.parcelas,
       valor_prazo: p.valor_prazo, condicoes: p.condicoes, observacoes: p.observacoes, status: 'rascunho',
     }
     await saveProp.mutateAsync(copia)

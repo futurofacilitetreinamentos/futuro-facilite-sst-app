@@ -166,13 +166,17 @@ export function buildProposta(d: PropostaDocData): string {
     (it) => `<tr><td>${esc(itemLabel(it))}</td><td class="cm-v">${itemTotal(it) > 0 ? valorCell(itemTotal(it)) : 'Incluso'}</td></tr>`,
   );
   const subtotal = round2((d.itens || []).reduce((s, it) => s + itemTotal(it), 0));
-  const desconto = round2(d.desconto);
+  const descontoPct = Math.max(0, num(d.descontoPct));
+  const descontoPorPct = round2(subtotal * descontoPct / 100);
+  const descontoFixo = round2(d.desconto);
   const avista = round2(d.valorAvista);
   const parcelas = Math.max(1, Math.trunc(num(d.parcelas)) || 1);
   const prazo = round2(d.valorPrazo);
   const tot: string[] = [];
   tot.push(`<tr class="cm-tot cm-tot1"><td><b>VALOR TOTAL DOS SERVIÇOS</b></td><td class="cm-v">${valorCell(subtotal)}</td></tr>`);
-  if (desconto > 0) tot.push(`<tr class="cm-tot"><td><b>DESCONTO</b></td><td class="cm-v">− ${valorCell(desconto)}</td></tr>`);
+  const pctLabel = descontoPct.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+  if (descontoPorPct > 0) tot.push(`<tr class="cm-tot"><td><b>DESCONTO (${esc(pctLabel)}%)</b></td><td class="cm-v">− ${valorCell(descontoPorPct)}</td></tr>`);
+  if (descontoFixo > 0) tot.push(`<tr class="cm-tot"><td><b>DESCONTO</b></td><td class="cm-v">− ${valorCell(descontoFixo)}</td></tr>`);
   tot.push(`<tr class="cm-tot"><td><b>VALOR TOTAL DA PROPOSTA (À VISTA)</b></td><td class="cm-v"><b>${valorCell(avista, true)}</b></td></tr>`);
   if (parcelas > 1 && prazo > 0) {
     const parcela = round2(prazo / parcelas);
